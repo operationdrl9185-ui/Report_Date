@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #eef2f6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 1200px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Floating badges */
+        .badge {
+            position: absolute;
+            z-index: 10;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .title-badge {
+            top: 20px;
+            left: 20px;
+            background: #e0e7ff;
+            color: #3730a3;
+            border: 1px solid #c7d2fe;
+        }
+
+        .last-updated {
+            top: 20px;
+            right: 20px;
+            background: #f3f4f6;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+        }
+
+        /* Header row */
+        .table-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            background: #f9fafb;
+            border-radius: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+        }
+
+        /* Column widths */
+        .col-icon { width: 60px; flex-shrink: 0; }
+        .col-checklist { flex: 2; min-width: 180px; }
+        .col-last, .col-next { flex: 1.5; min-width: 140px; }
+        .col-remain { flex: 1; text-align: right; }
+
+        /* Data rows */
+        .row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 10px;
+            border-radius: 14px;
+            transition: box-shadow 0.2s, transform 0.1s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+            background: #fff;
+        }
+
+        .row:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+        }
+
+        /* Status colors */
+        .row.alarm {
+            background: #fee2e2;
+            border-left: 6px solid #ef4444;
+        }
+        .row.warning {
+            background: #fef3c7;
+            border-left: 6px solid #f59e0b;
+        }
+        .row.ok {
+            background: #d1fae5;
+            border-left: 6px solid #10b981;
+        }
+
+        /* Text styles */
+        .col-checklist {
+            font-weight: 600;
+            font-size: 16px;
+            color: #111827;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .col-last, .col-next {
+            font-size: 15px;
+            color: #1f2937;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .col-remain {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Status icon */
+        .status-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .status-icon.alarm { color: #ef4444; }
+        .status-icon.warning { color: #f59e0b; }
+        .status-icon.ok { color: #10b981; }
+
+        /* Remain days badge */
+        .remain-days {
+            display: inline-block;
+            background: #ffffff;
+            color: #1f2937;
+            font-weight: 800;
+            font-size: 18px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 20px;
+            text-align: center;
+            font-weight: 600;
+            border-radius: 12px;
+            margin: 10px;
+        }
+
+        .loading {
+            padding: 30px;
+            text-align: center;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .badge {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+            .col-icon { width: 40px; }
+            .col-checklist { min-width: 120px; font-size: 14px; }
+            .col-last, .col-next { min-width: 100px; font-size: 13px; }
+            .col-remain { font-size: 16px; }
+            .status-icon { width: 26px; height: 26px; }
+            .remain-days { font-size: 15px; padding: 5px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Floating badges -->
+        <div class="badge title-badge">
+            <span>📋</span> Checklist Tracker
+        </div>
+        <div class="badge last-updated" id="last-updated">Last updated: --</div>
+
+        <!-- Layout -->
+        <div style="padding-top: 80px;">
+            <div class="table-header">
+                <div class="col-icon"></div>
+                <div class="col-checklist">Checklist</div>
+                <div class="col-last">Last Inspection</div>
+                <div class="col-next">Next Inspection</div>
+                <div class="col-remain">Remain Days</div>
+            </div>
+            <div id="report-data" class="loading">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw-d5UeDPUyOWggq3mY5juj9TC4NrEwnCRYpwpJYcsFskVpgtumq4Fzz9NhQriH_jjT/exec';
+
+        // SVG icons for status
+        const ICONS = {
+            alarm: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 9v4m0 4h.01M12 3l9 16H3l9-16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+            warning: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8v4m0 4h.01M12 3l9 16H3l9-16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+            ok: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        };
+
+        async function loadData() {
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    document.getElementById('report-data').innerHTML = '<div class="error">No data found.</div>';
+                    document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleString();
+                    return;
+                }
+
+                // Sort by Remain days ascending (most urgent first)
+                data.sort((a, b) => {
+                    const aVal = (a['Remain days'] === '' || a['Remain days'] === null || a['Remain days'] === undefined) ? 99999 : Number(a['Remain days']);
+                    const bVal = (b['Remain days'] === '' || b['Remain days'] === null || b['Remain days'] === undefined) ? 99999 : Number(b['Remain days']);
+                    return aVal - bVal;
+                });
+
+                let html = '';
+                data.forEach(row => {
+                    const remain = Number(row['Remain days']);
+                    const alarm = Number(row['Alarm Time']) || 0;
+                    const prewarn = Number(row['Pre Warning']) || 7;
+
+                    let rowClass = 'ok';
+                    let iconType = 'ok';
+                    if (!isNaN(remain)) {
+                        if (remain <= alarm) {
+                            rowClass = 'alarm';
+                            iconType = 'alarm';
+                        } else if (remain <= prewarn) {
+                            rowClass = 'warning';
+                            iconType = 'warning';
+                        }
+                    }
+
+                    html += `
+                        <div class="row ${rowClass}">
+                            <div class="col-icon">
+                                <span class="status-icon ${iconType}">${ICONS[iconType]}</span>
+                            </div>
+                            <div class="col-checklist">${row['Checklist name'] || ''}</div>
+                            <div class="col-last">${row['Date Of inspection'] || ''}</div>
+                            <div class="col-next">${row['Next Inspection Date'] || ''}</div>
+                            <div class="col-remain"><span class="remain-days">${row['Remain days']}</span></div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('report-data').innerHTML = html;
+                document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleString();
+            } catch (error) {
+                document.getElementById('report-data').innerHTML = '<div class="error">Failed to load data. Check API URL.</div>';
+                console.error(error);
+            }
+        }
+
+        // Initial load and refresh every 10 seconds
+        loadData();
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>
