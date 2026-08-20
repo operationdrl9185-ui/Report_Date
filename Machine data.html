@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dekko Isho Group – Machine Explorer 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .fade-in { animation: fadeIn 0.2s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        input:disabled { background: #f1f5f9; cursor: not-allowed; }
+        .search-highlight { background-color: #fef08a; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col overflow-hidden">
+
+    <header class="bg-white shadow-sm border-b border-slate-200 z-10 flex-shrink-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md">DI</div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 leading-tight">Dekko Isho Group</h1>
+                    <p class="text-xs text-slate-500">Machine Explorer '26</p>
+                </div>
+            </div>
+            <div id="breadcrumb-trail" class="hidden sm:flex items-center gap-2 text-sm text-slate-600 font-medium"></div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6 overflow-hidden">
+        
+        <aside class="w-full md:w-1/3 lg:w-1/4 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-1/2 md:h-full flex-shrink-0 overflow-hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h2 id="menu-heading" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Navigation</h2>
+                <button id="back-btn" onclick="goBack()" class="hidden text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 font-semibold px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Back
+                </button>
+            </div>
+            <div class="overflow-y-auto p-3 flex-1 space-y-2" id="navigation-menu"></div>
+        </aside>
+
+        <section class="w-full md:w-2/3 lg:w-3/4 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-1/2 md:h-full overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50">
+                <div class="flex justify-between items-start sm:items-center gap-4 flex-col sm:flex-row">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800" id="panel-title">Select Section</h2>
+                        <p class="text-xs text-slate-500 mt-0.5" id="panel-subtitle">Choose from the left menu to explore machines</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="item-count-badge" class="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-1 rounded-full hidden"></span>
+                        <button onclick="exportCSV()" class="hidden sm:block bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">Export CSV</button>
+                    </div>
+                </div>
+                <div class="mt-3 relative">
+                    <input id="search-input" type="text" placeholder="Search by model number (global)..." 
+                           class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all">
+                    <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto p-4 sm:p-6 flex-1 bg-slate-50/50" id="right-panel-content">
+                <div id="placeholder-state" class="h-full flex flex-col items-center justify-center text-center text-slate-400">
+                    <svg class="w-16 h-16 mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <p class="text-lg font-medium text-slate-600">Click a department to begin</p>
+                    <p class="text-sm mt-1 text-slate-400">Multi‑level exploration of categories, brands & models.</p>
+                </div>
+                <div id="content-list" class="space-y-3 hidden fade-in"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ================= DATA (cleaned: no zero-qty entries) =================
+        const structuredDatabase = {
+            "Sewing Machine": {
+                total: 1835,
+                machines: [
+                    {
+                        name: "Single Needle Lock Stitch, Needle Feed & Hemming",
+                        brands: {
+                            "JUKI": [
+                                { model: "DDL-900AMS", qty: 7 }, { model: "DDL-9000A", qty: 2 },
+                                { model: "DDL-900BMS", qty: 8 }, { model: "DDL-9000BMS", qty: 11 },
+                                { model: "DDL-900CSMNBK", qty: 36 }, { model: "DLN-5410NDD-7", qty: 30 },
+                                { model: "DLU-5490N-7", qty: 17 }, { model: "DDL-5530-N", qty: 95 },
+                                { model: "DDL8000ABMSNBK", qty: 39 }, { model: "DDL8000CSHNB/PL PULLER", qty: 276 },
+                                { model: "DDL-8000H", qty: 14 }, { model: "DDL-8100B", qty: 7 },
+                                { model: "DDL-8300N", qty: 1 }, { model: "DDL-8700-7", qty: 341 },
+                                { model: "DDL-8700-7A", qty: 122 }, { model: "DDL-8700-7B", qty: 7 }
+                            ],
+                            "DUGLUS": [{ model: "DL-C9-5490-9W-D3-CS", qty: 24 }],
+                            "Fabcare": [{ model: "FB-9500B", qty: 1 }],
+                            "Typical": [{ model: "GC-6910A/FY-20U43", qty: 1031 }]
+                        }
+                    },
+                    {
+                        name: "Vertical Trimmer, Needle Feed",
+                        brands: {
+                            "JUKI": [{ model: "DLM-5200N", qty: 50 }],
+                            "HIKARI": [{ model: "H9990-7C", qty: 31 }, { model: "H9990-7C (Part 2)", qty: 81 }]
+                        }
+                    },
+                    {
+                        name: "Over Lock",
+                        brands: {
+                            "JUKI": [
+                                { model: "MO-3600 (5th)", qty: 2 }, { model: "MO-6714 DA (4th)", qty: 4 },
+                                { model: "MO-6716 DA (5th light)", qty: 8 }, { model: "MO-6716S (5th Heavy)", qty: 138 },
+                                { model: "MO-6743S (6th)", qty: 15 }
+                            ],
+                            "SIRUBA": [{ model: "757K (5th)", qty: 20 }, { model: "757K (5th) Part 2", qty: 187 }]
+                        }
+                    },
+                    {
+                        name: "Two Needle Lock Stitch",
+                        brands: {
+                            "JUKI": [
+                                { model: "LH-3528 AGF7WB", qty: 43 }, { model: "LH-3568 A-7", qty: 19 }
+                            ]
+                        }
+                    },
+                    {
+                        name: "Feed Off the Arm",
+                        brands: {
+                            "JUKI": [{ model: "MS-1261", qty: 14 }, { model: "MS-1190S", qty: 83 }]
+                        }
+                    },
+                    {
+                        name: "Button Hole/Index",
+                        brands: {
+                            "JUKI": [
+                                { model: "LBH-1790A", qty: 15 }, { model: "LBH-1790AN", qty: 24 },
+                                { model: "LBH-1790S", qty: 53 }
+                            ],
+                            "Brother": [{ model: "HE-800C-2", qty: 3 }]
+                        }
+                    },
+                    {
+                        name: "Chain Stitch",
+                        brands: {
+                            "G. Wheel": [{ model: "CS-5930", qty: 11 }, { model: "CS-5900", qty: 1 }],
+                            "JUKI": [{ model: "MH481U-A", qty: 35 }, { model: "MH38OFU", qty: 26 }],
+                            "SUPREME": [{ model: "CS3800D", qty: 4 }, { model: "CS381D", qty: 7 }],
+                            "EUROMAC": [{ model: "EM-3830DP-PL", qty: 4 }]
+                        }
+                    },
+                    {
+                        name: "Button Stitch",
+                        brands: { "JUKI": [{ model: "LK-1903A", qty: 73 }] }
+                    },
+                    {
+                        name: "Bartaking",
+                        brands: {
+                            "JUKI": [{ model: "LK-1900B-SS", qty: 1 }, { model: "LK-1900A-SS", qty: 23 }]
+                        }
+                    },
+                    {
+                        name: "Blind Stitch",
+                        brands: { "Zusun": [{ model: "CM-101", qty: 1 }] }
+                    },
+                    {
+                        name: "Zig Zag",
+                        brands: { "JUKI": [{ model: "LZ2284A", qty: 4 }] }
+                    },
+                    {
+                        name: "Multi Needle Chain Stitch",
+                        brands: {
+                            "Kansai": [
+                                { model: "DFB1404PSF", qty: 34 }, { model: "DFB1411P-XP", qty: 16 }
+                            ]
+                        }
+                    },
+                    {
+                        name: "Pattern Sewer",
+                        brands: {
+                            "HIKARI": [{ model: "HMS-1510GB-02A", qty: 3 }],
+                            "Euromac": [{ model: "EM-9042", qty: 10 }],
+                            "Supreme": [{ model: "SP-2210H/CH", qty: 14 }]
+                        }
+                    },
+                    {
+                        name: "Flat Lock",
+                        brands: { "JUKI": [{ model: "MF7523", qty: 4 }] }
+                    },
+                    {
+                        name: "Saddle Stitch",
+                        brands: {
+                            "Juki": [{ model: "MP200M", qty: 3 }],
+                            "Yamata": [{ model: "MP200N", qty: 1 }]
+                        }
+                    },
+                    {
+                        name: "Blind Stitch belt loop Make",
+                        brands: { "Tony": [{ model: "H-1011", qty: 1 }] }
+                    },
+                    {
+                        name: "Eyelet hole",
+                        brands: {
+                            "JUKI": [{ model: "MEB-3200J", qty: 1 }, { model: "MEB32OOCJSKA-CCE", qty: 1 }]
+                        }
+                    },
+                    {
+                        name: "Pintak",
+                        brands: { "Kingtex": [{ model: "N/A", qty: 1 }] }
+                    },
+                    {
+                        name: "Lace cutter (M)",
+                        brands: { "Fabcare": [{ model: "FB-101LC", qty: 1 }] }
+                    },
+                    {
+                        name: "Picoting Machine",
+                        brands: { "Fabcare": [{ model: "FB-1720PK", qty: 1 }] }
+                    },
+                    {
+                        name: "Shell Stitch O/L",
+                        brands: { "Fabcare": [{ model: "FB-38", qty: 1 }] }
+                    }
+                ]
+            },
+            "Non Sewing Machine": {
+                total: 250,
+                machines: [
+                    {
+                        name: "Fusing Machine",
+                        brands: {
+                            "Veit": [{ model: "FX-1000", qty: 3 }],
+                            "Hasima": [{ model: "HPM-600B", qty: 1 }],
+                            "Ngai shing": [{ model: "NS-2410", qty: 1 }]
+                        }
+                    },
+                    {
+                        name: "Needle Detector",
+                        brands: {
+                            "Hasima": [{ model: "HN-2870C-100", qty: 1 }, { model: "HN-770G-100", qty: 2 }]
+                        }
+                    },
+                    {
+                        name: "Auto Spreader",
+                        brands: { "YINENGTECH": [{ model: "KPLS-190", qty: 3 }] }
+                    },
+                    {
+                        name: "Band Knife",
+                        brands: { "Eastman": [{ model: "EC-700N", qty: 2 }] }
+                    },
+                    {
+                        name: "Fabric Inspection",
+                        brands: {
+                            "Nagi Shing": [{ model: "NS-58L", qty: 1 }, { model: "NS-58L-72", qty: 5 }]
+                        }
+                    },
+                    {
+                        name: "Fabric Losening",
+                        brands: {
+                            "Nagi Shing": [{ model: "NS-56", qty: 1 }],
+                            "RICHPEACE": [{ model: "GOA-2100D", qty: 1 }]
+                        }
+                    },
+                    {
+                        name: "Plotter",
+                        brands: {
+                            "Lectra": [{ model: "ALYS60+", qty: 1 }],
+                            "BOK": [{ model: "BJ-D 185/4", qty: 1 }]
+                        }
+                    },
+                    {
+                        name: "Pattern Cutter",
+                        brands: {
+                            "Sina Jet": [{ model: "FG 1512", qty: 3 }],
+                            "BOK": [{ model: "RZ,CAM-1512", qty: 1 }]
+                        }
+                    },
+                    {
+                        name: "Sleeve Placket Folding",
+                        brands: { "Nagi Shing": [{ model: "NS-5503", qty: 14 }] }
+                    },
+                    {
+                        name: "Plastic Staple Machine",
+                        brands: { "SAGA": [{ model: "Spa", qty: 1 }] }
+                    },
+                    {
+                        name: "Cloth Dril",
+                        brands: { "K.M": [{ model: "KD-200L", qty: 1 }] }
+                    },
+                    {
+                        name: "Cutting Machine",
+                        brands: { "K.M. 10\"": [{ model: "K.S-AU V", qty: 21 }] }
+                    },
+                    {
+                        name: "Vacuum Iron Table",
+                        brands: {
+                            "Nagi Shing": [{ model: "NS-3543", qty: 1 }],
+                            "Mark": [{ model: "Mark", qty: 8 }],
+                            "YILI": [{ model: "Yili", qty: 5 }],
+                            "Fulatech": [{ model: "Fulatech", qty: 1 }],
+                            "VEIT": [{ model: "Sewing", qty: 76 }]
+                        }
+                    },
+                    {
+                        name: "Snap Button",
+                        brands: {
+                            "Nill": [{ model: "Nill", qty: 8 }],
+                            "Nagi Shing": [{ model: "NS-47", qty: 12 }]
+                        }
+                    },
+                    {
+                        name: "THREAD SUCKING",
+                        brands: {
+                            "Ngai Shing": [{ model: "NS-54", qty: 3 }],
+                            "NISHO": [{ model: "NH-TS-5600A", qty: 3 }]
+                        }
+                    },
+                    {
+                        name: "Auto Cuff Forming",
+                        brands: {
+                            "Ngai Shing": [{ model: "NS-85P-1", qty: 4 }],
+                            "Nissin": [{ model: "NT-750", qty: 2 }]
+                        }
+                    },
+                    {
+                        name: "Auto Collar Forming",
+                        brands: {
+                            "Ngai Shing": [{ model: "NS-82P-1", qty: 11 }],
+                            "Nissin": [{ model: "NT-755", qty: 3 }]
+                        }
+                    },
+                    {
+                        name: "Collar Trimming & Turning",
+                        brands: {
+                            "Ngai Shing": [
+                                { model: "720", qty: 2 }, { model: "NS-76B", qty: 4 }
+                            ]
+                        }
+                    },
+                    {
+                        name: "Thread Winder",
+                        brands: {
+                            "Zoje": [{ model: "OE-40C", qty: 1 }],
+                            "Jaki": [{ model: "WH-20C ?", qty: 1 }],
+                            "Hasima": [{ model: "HW-20C", qty: 5 }]
+                        }
+                    },
+                    {
+                        name: "Heat Seal",
+                        brands: { "ESHA": [{ model: "EC-810N", qty: 2 }] }
+                    },
+                    {
+                        name: "Dai Cutter",
+                        brands: { "ATOM": [{ model: "SF25EXT25", qty: 2 }] }
+                    },
+                    {
+                        name: "Neck press machine",
+                        brands: {
+                            "Ngai Shing": [{ model: "NS-8247", qty: 2 }],
+                            "Nissin": [{ model: "NF-421", qty: 3 }]
+                        }
+                    },
+                    {
+                        name: "Box Placket Fusing",
+                        brands: {
+                            "Nissin": [{ model: "NFA-518V", qty: 3 }],
+                            "Nagi Shing": [
+                                { model: "NS-8233", qty: 1 }, { model: "NS-8405P", qty: 3 },
+                                { model: "NS-8933", qty: 1 }
+                            ],
+                            "Veit": [{ model: "BR170101FPD", qty: 1 }]
+                        }
+                    },
+                    {
+                        name: "Side Seam Press",
+                        brands: {
+                            "Nissin": [{ model: "NF-333V", qty: 1 }],
+                            "Ngai Shing": [{ model: "NS-8402", qty: 1 }]
+                        }
+                    },
+                    {
+                        name: "Arm Hole Press Machine",
+                        brands: {
+                            "Ngai Shing": [{ model: "NS-8401", qty: 2 }],
+                            "Veit": [
+                                { model: "ANO025", qty: 1 }, { model: "CS-103556", qty: 1 },
+                                { model: "CS-103555", qty: 1 }
+                            ]
+                        }
+                    },
+                    {
+                        name: "Ribbon Cutter",
+                        brands: { "Nagi Shing": [{ model: "NS-1132", qty: 1 }] }
+                    },
+                    {
+                        name: "Collar Notcher",
+                        brands: { "Nagi Shing": [{ model: "NS-95", qty: 1 }] }
+                    },
+                    {
+                        name: "TEMPLATE CUTTING MACHINE",
+                        brands: { "Sinajet": [{ model: "FT 1512", qty: 1 }] }
+                    },
+                    {
+                        name: "Sport Remover",
+                        brands: { "Nagi Shing": [{ model: "NS-3302", qty: 2 }] }
+                    },
+                    {
+                        name: "Collar Mark",
+                        brands: { "Nagi Shing": [{ model: "NS-95", qty: 1 }] }
+                    },
+                    {
+                        name: "Solder Fusing",
+                        brands: { "Ngai Shing": [{ model: "NS-8404", qty: 1 }] }
+                    },
+                    {
+                        name: "Pocket Press",
+                        brands: { "Nissin": [{ model: "NF-338V", qty: 3 }] }
+                    },
+                    {
+                        name: "POLY SEALING",
+                        brands: { "KING STAR": [{ model: "", qty: 2 }] }
+                    }
+                ]
+            }
+        };
+
+        // ================= STATE =================
+        let currentLevel = 'ROOT';
+        let selectedDeptKey = null;
+        let selectedMachineObj = null;
+        let selectedBrandName = null;
+        let lastSearchQuery = '';
+
+        const navMenu = document.getElementById('navigation-menu');
+        const contentList = document.getElementById('content-list');
+        const placeholder = document.getElementById('placeholder-state');
+        const panelTitle = document.getElementById('panel-title');
+        const panelSubtitle = document.getElementById('panel-subtitle');
+        const itemCountBadge = document.getElementById('item-count-badge');
+        const backBtn = document.getElementById('back-btn');
+        const breadcrumbTrail = document.getElementById('breadcrumb-trail');
+        const menuHeading = document.getElementById('menu-heading');
+        const searchInput = document.getElementById('search-input');
+
+        // ================= HELPERS =================
+        function getMachineQty(machine) {
+            let sum = 0;
+            Object.values(machine.brands).forEach(brandArr => {
+                brandArr.forEach(item => {
+                    if (item.qty && !isNaN(item.qty)) sum += Number(item.qty);
+                });
+            });
+            return sum;
+        }
+
+        // ================= GLOBAL SEARCH =================
+        function globalSearch(query) {
+            const results = [];
+            const lowerQuery = query.toLowerCase().trim();
+            if (!lowerQuery) return results;
+
+            Object.keys(structuredDatabase).forEach(deptKey => {
+                const dept = structuredDatabase[deptKey];
+                dept.machines.forEach((machine, machineIndex) => {
+                    Object.keys(machine.brands).forEach(brandName => {
+                        machine.brands[brandName].forEach(item => {
+                            if (item.model && item.model.toLowerCase().includes(lowerQuery)) {
+                                results.push({
+                                    deptKey,
+                                    deptName: deptKey,
+                                    machineIndex,
+                                    machineName: machine.name,
+                                    brandName,
+                                    model: item.model,
+                                    qty: item.qty
+                                });
+                            }
+                        });
+                    });
+                });
+            });
+            return results;
+        }
+
+        function renderGlobalSearchResults(query) {
+            const results = globalSearch(query);
+            if (results.length === 0) {
+                contentList.innerHTML = `<div class="text-center py-8 text-slate-400">No models found for "${query}"</div>`;
+            } else {
+                contentList.innerHTML = results.map(result => `
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">${result.deptName}</span>
+                                <span class="text-xs text-slate-400">/</span>
+                                <span class="text-xs font-medium text-slate-600">${result.machineName}</span>
+                                <span class="text-xs text-slate-400">/</span>
+                                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">${result.brandName}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-900 text-lg mt-2 font-mono">${result.model}</h4>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right">
+                                <span class="text-xs text-slate-400 font-medium block">Quantity (DRL)</span>
+                                <span class="text-lg font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100">${result.qty}</span>
+                            </div>
+                            <button onclick="navigateToModel('${result.deptKey}', ${result.machineIndex}, '${result.brandName}')" 
+                                    class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-2 rounded-lg transition-colors">
+                                View
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function navigateToModel(deptKey, machineIndex, brandName) {
+            // Clear search and navigate
+            searchInput.value = '';
+            lastSearchQuery = '';
+            selectDepartment(deptKey);
+            selectMachineCategory(machineIndex);
+            selectBrand(brandName);
+        }
+
+        // ================= APPLY SEARCH =================
+        function applySearch() {
+            const query = searchInput.value;
+            if (query.trim() !== '') {
+                // Global search mode
+                lastSearchQuery = query;
+                panelTitle.textContent = `Search Results for "${query}"`;
+                panelSubtitle.textContent = `Showing all machines with matching model numbers`;
+                itemCountBadge.textContent = `${globalSearch(query).length} Results`;
+                renderGlobalSearchResults(query);
+            } else {
+                // Restore current level view
+                lastSearchQuery = '';
+                if (currentLevel === 'ROOT') {
+                    renderRootMenu();
+                } else if (currentLevel === 'DEPT') {
+                    selectDepartment(selectedDeptKey);
+                } else if (currentLevel === 'CATEGORY') {
+                    selectMachineCategory(structuredDatabase[selectedDeptKey].machines.indexOf(selectedMachineObj));
+                } else if (currentLevel === 'BRAND') {
+                    selectBrand(selectedBrandName);
+                }
+            }
+        }
+
+        // ================= RENDER FUNCTIONS =================
+        function renderRootMenu() {
+            currentLevel = 'ROOT';
+            selectedDeptKey = null;
+            selectedMachineObj = null;
+            selectedBrandName = null;
+            backBtn.classList.add('hidden');
+            menuHeading.textContent = "Departments";
+            breadcrumbTrail.innerHTML = `<span class="text-blue-600 font-bold">Total Machine List</span>`;
+            panelTitle.textContent = "Dekko Isho Group – Overview";
+            panelSubtitle.textContent = "Click a department to explore machines";
+            placeholder.classList.add('hidden');
+            contentList.classList.remove('hidden');
+            searchInput.value = '';
+            lastSearchQuery = '';
+            searchInput.disabled = false;
+
+            const deptKeys = Object.keys(structuredDatabase);
+            const totalAll = deptKeys.reduce((acc, key) => acc + structuredDatabase[key].total, 0);
+            itemCountBadge.textContent = `${totalAll} Total`;
+            itemCountBadge.classList.remove('hidden');
+
+            navMenu.innerHTML = deptKeys.map(key => `
+                <button onclick="selectDepartment('${key}')" 
+                        class="w-full text-left px-4 py-3 rounded-xl bg-blue-50 text-blue-800 font-bold hover:bg-blue-100 transition-all flex justify-between items-center shadow-sm">
+                    <span>${key}</span>
+                    <span class="text-xs bg-blue-200 text-blue-900 px-2.5 py-1 rounded-lg">${structuredDatabase[key].total}</span>
+                </button>
+            `).join('');
+
+            contentList.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    ${deptKeys.map((key, idx) => {
+                        const dept = structuredDatabase[key];
+                        const gradient = idx === 0 ? 'from-blue-500 to-indigo-600' : 'from-emerald-500 to-teal-600';
+                        return `
+                        <div onclick="selectDepartment('${key}')" 
+                             class="bg-gradient-to-br ${gradient} text-white p-6 rounded-2xl shadow-md cursor-pointer hover:scale-[1.02] transition-all">
+                            <span class="bg-white/20 text-xs px-3 py-1 rounded-full font-semibold">${idx === 0 ? 'Sewing Section' : 'Non-Sewing Section'}</span>
+                            <h3 class="text-2xl font-bold mt-3">${key}</h3>
+                            <p class="text-blue-100 text-sm mt-1">Total Quantity: ${dept.total}</p>
+                            <p class="text-blue-100 text-xs mt-2">${dept.machines.length} Categories</p>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function selectDepartment(deptKey) {
+            currentLevel = 'DEPT';
+            selectedDeptKey = deptKey;
+            selectedMachineObj = null;
+            selectedBrandName = null;
+            backBtn.classList.remove('hidden');
+            menuHeading.textContent = "Categories";
+            breadcrumbTrail.innerHTML = `
+                <span onclick="renderRootMenu()" class="cursor-pointer hover:underline">Root</span> / 
+                <span class="text-blue-600 font-bold">${deptKey}</span>`;
+            panelTitle.textContent = deptKey;
+            panelSubtitle.textContent = "Select a machine category";
+            searchInput.value = '';
+            lastSearchQuery = '';
+            searchInput.disabled = false;
+
+            const dept = structuredDatabase[deptKey];
+            itemCountBadge.textContent = `${dept.machines.length} Categories`;
+            placeholder.classList.add('hidden');
+            contentList.classList.remove('hidden');
+
+            navMenu.innerHTML = dept.machines.map(m => `
+                <button onclick="selectMachineCategory(${dept.machines.indexOf(m)})" 
+                        class="w-full text-left px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-blue-50 hover:text-blue-700 transition-all flex justify-between items-center group border border-transparent">
+                    <span class="truncate pr-2 text-sm font-semibold">${m.name}</span>
+                    <span class="bg-slate-100 text-slate-600 group-hover:bg-blue-200 group-hover:text-blue-800 text-xs py-1 px-2.5 rounded-lg font-bold">
+                        ${getMachineQty(m)} units
+                    </span>
+                </button>
+            `).join('');
+
+            contentList.innerHTML = dept.machines.map(m => {
+                const qty = getMachineQty(m);
+                const brandCount = Object.keys(m.brands).length;
+                return `
+                <div onclick="selectMachineCategory(${dept.machines.indexOf(m)})" 
+                     class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-all cursor-pointer flex justify-between items-center group">
+                    <div>
+                        <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Category #${dept.machines.indexOf(m)+1}</span>
+                        <h4 class="font-bold text-slate-800 mt-2 text-base group-hover:text-blue-700 transition-colors">${m.name}</h4>
+                        <p class="text-xs text-slate-500 mt-1">Brands: ${brandCount} | Total Qty: ${qty}</p>
+                    </div>
+                    <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg group-hover:bg-blue-600 group-hover:text-white font-bold transition-colors">View ➔</span>
+                </div>`;
+            }).join('');
+        }
+
+        function selectMachineCategory(machineIndex) {
+            currentLevel = 'CATEGORY';
+            selectedMachineObj = structuredDatabase[selectedDeptKey].machines[machineIndex];
+            selectedBrandName = null;
+            menuHeading.textContent = "Brands";
+            breadcrumbTrail.innerHTML = `
+                <span onclick="renderRootMenu()" class="cursor-pointer hover:underline">Root</span> / 
+                <span onclick="selectDepartment(selectedDeptKey)" class="cursor-pointer hover:underline">${selectedDeptKey}</span> / 
+                <span class="text-blue-600 font-bold">${selectedMachineObj.name}</span>`;
+            panelTitle.textContent = selectedMachineObj.name;
+            panelSubtitle.textContent = "Select a brand to view models";
+            searchInput.value = '';
+            lastSearchQuery = '';
+            searchInput.disabled = false;
+
+            const brandNames = Object.keys(selectedMachineObj.brands);
+            itemCountBadge.textContent = `${brandNames.length} Brands`;
+            placeholder.classList.add('hidden');
+            contentList.classList.remove('hidden');
+
+            navMenu.innerHTML = brandNames.map(brand => {
+                const models = selectedMachineObj.brands[brand];
+                const brandQty = models.reduce((acc, m) => acc + (Number(m.qty) || 0), 0);
+                return `
+                <button onclick="selectBrand('${brand}')" 
+                        class="w-full text-left px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-emerald-50 hover:text-emerald-700 transition-all flex justify-between items-center group border border-transparent">
+                    <span class="truncate pr-2 font-bold text-slate-800">${brand}</span>
+                    <span class="bg-emerald-100 text-emerald-800 text-xs py-1 px-2.5 rounded-lg font-bold">${models.length} models / ${brandQty} units</span>
+                </button>`;
+            }).join('');
+
+            contentList.innerHTML = brandNames.map(brand => {
+                const models = selectedMachineObj.brands[brand];
+                const brandQty = models.reduce((acc, m) => acc + (Number(m.qty) || 0), 0);
+                return `
+                <div onclick="selectBrand('${brand}')" 
+                     class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-emerald-300 transition-all cursor-pointer flex justify-between items-center group">
+                    <div>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Brand</span>
+                        <h4 class="font-bold text-slate-800 mt-2 text-lg group-hover:text-emerald-700 transition-colors">${brand}</h4>
+                        <p class="text-xs text-slate-500 mt-1">Models: ${models.length} | Total Qty: ${brandQty}</p>
+                    </div>
+                    <span class="text-sm font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">View ➔</span>
+                </div>`;
+            }).join('');
+        }
+
+        function selectBrand(brandName) {
+            currentLevel = 'BRAND';
+            selectedBrandName = brandName;
+            menuHeading.textContent = "Models & Qty";
+            breadcrumbTrail.innerHTML = `
+                <span onclick="renderRootMenu()" class="cursor-pointer hover:underline">Root</span> / 
+                <span onclick="selectDepartment(selectedDeptKey)" class="cursor-pointer hover:underline">${selectedDeptKey}</span> / 
+                <span onclick="selectMachineCategory(${structuredDatabase[selectedDeptKey].machines.indexOf(selectedMachineObj)})" class="cursor-pointer hover:underline">${selectedMachineObj.name}</span> / 
+                <span class="text-blue-600 font-bold">${brandName}</span>`;
+            panelTitle.textContent = `${selectedMachineObj.name} – ${brandName}`;
+            panelSubtitle.textContent = "Detailed model list with quantities";
+            searchInput.value = '';
+            lastSearchQuery = '';
+            searchInput.disabled = false;
+
+            const modelList = selectedMachineObj.brands[brandName];
+            itemCountBadge.textContent = `${modelList.length} Models`;
+            placeholder.classList.add('hidden');
+            contentList.classList.remove('hidden');
+
+            navMenu.innerHTML = modelList.map(m => `
+                <div class="px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 flex justify-between items-center">
+                    <span class="font-mono">${m.model}</span>
+                    <span class="bg-blue-600 text-white px-2 py-0.5 rounded-md">${m.qty}</span>
+                </div>
+            `).join('');
+
+            contentList.innerHTML = modelList.map(item => `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4 hover:border-blue-300 transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm border border-blue-100">⚙️</div>
+                        <div>
+                            <span class="text-xs text-slate-400 font-medium uppercase tracking-wider">Model Number</span>
+                            <h4 class="font-bold text-slate-900 text-base font-mono">${item.model}</h4>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 font-medium block">Quantity (DRL)</span>
+                        <span class="text-lg font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100 inline-block mt-0.5">${item.qty}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function goBack() {
+            if (currentLevel === 'BRAND') {
+                selectMachineCategory(structuredDatabase[selectedDeptKey].machines.indexOf(selectedMachineObj));
+            } else if (currentLevel === 'CATEGORY') {
+                selectDepartment(selectedDeptKey);
+            } else if (currentLevel === 'DEPT') {
+                renderRootMenu();
+            }
+        }
+
+        function exportCSV() {
+            let csv = "Department,Category,Brand,Model,Quantity\n";
+            Object.keys(structuredDatabase).forEach(deptKey => {
+                const dept = structuredDatabase[deptKey];
+                dept.machines.forEach(machine => {
+                    Object.keys(machine.brands).forEach(brand => {
+                        machine.brands[brand].forEach(item => {
+                            csv += `"${deptKey}","${machine.name}","${brand}","${item.model}",${item.qty}\n`;
+                        });
+                    });
+                });
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'machine_data.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', applySearch);
+        window.onload = renderRootMenu;
+    </script>
+</body>
+</html>
