@@ -24,11 +24,11 @@
 
         .dashboard {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1100px;
             background: #ffffff;
-            border-radius: 24px;
+            border-radius: 18px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            padding: 20px;
+            padding: 14px;
             position: relative;
             overflow: hidden;
         }
@@ -40,7 +40,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981, #3b82f6, #ef4444);
             background-size: 200% 100%;
             animation: gradientShift 4s linear infinite;
@@ -57,22 +57,22 @@
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 16px;
             position: relative;
             z-index: 2;
         }
 
         .badge {
-            padding: 10px 18px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 16px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
             letter-spacing: 0.3px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
         }
 
         .title-badge {
@@ -94,19 +94,19 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             animation: fadeInDown 0.6s ease 0.2s both;
         }
 
         .forecast-badge {
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 16px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 12px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            gap: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
             transition: transform 0.2s;
         }
 
@@ -137,36 +137,36 @@
 
         @keyframes pulseGlowRed {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         @keyframes pulseGlowYellow {
             0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
             100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
         }
 
         @keyframes pulseGlowGreen {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
         .updating-indicator {
             display: none;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             color: #6b7280;
-            font-size: 13px;
+            font-size: 11px;
             animation: fadeIn 0.3s ease;
         }
         .updating-indicator.active {
             display: flex;
         }
         .spinner {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border: 2px solid #d1d5db;
             border-top-color: #3730a3;
             border-radius: 50%;
@@ -177,31 +177,31 @@
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 14px 16px;
-            margin-bottom: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
             background: #f9fafb;
-            border-radius: 12px;
+            border-radius: 10px;
             color: #6b7280;
             text-transform: uppercase;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.6px;
         }
 
-        .col-icon { width: 60px; flex-shrink: 0; }
-        .col-checklist { flex: 2; min-width: 180px; }
-        .col-last, .col-next { flex: 1.5; min-width: 140px; }
+        .col-icon { width: 44px; flex-shrink: 0; }
+        .col-checklist { flex: 2; min-width: 150px; }
+        .col-last, .col-next { flex: 1.5; min-width: 110px; }
         .col-remain { flex: 1; text-align: right; }
 
         .row {
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 16px;
-            margin-bottom: 10px;
-            border-radius: 14px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border-radius: 10px;
             transition: box-shadow 0.3s, transform 0.2s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
             background: #fff;
             animation: fadeInUp 0.6s ease both;
             position: relative;
@@ -227,49 +227,49 @@
         }
 
         .row:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
+            transform: translateY(-1px);
         }
 
         .row.alarm {
             background: #fee2e2;
-            border-left: 6px solid #ef4444;
+            border-left: 4px solid #ef4444;
         }
         .row.warning {
             background: #fef3c7;
-            border-left: 6px solid #f59e0b;
+            border-left: 4px solid #f59e0b;
         }
         .row.ok {
             background: #d1fae5;
-            border-left: 6px solid #10b981;
+            border-left: 4px solid #10b981;
         }
 
         .col-checklist {
             font-weight: 600;
-            font-size: 16px;
+            font-size: 13px;
             color: #111827;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
         }
         .col-last, .col-next {
-            font-size: 15px;
+            font-size: 12px;
             color: #1f2937;
             font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
         }
         .col-remain {
             font-weight: 700;
-            font-size: 18px;
+            font-size: 14px;
         }
 
         .status-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: #ffffff;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s;
         }
 
@@ -289,14 +289,14 @@
         }
 
         @keyframes pulseRed {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+            70% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         @keyframes pulseYellow {
             0% { transform: scale(1); }
-            50% { transform: scale(1.07); }
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
 
@@ -311,12 +311,12 @@
             background: #ffffff;
             color: #1f2937;
             font-weight: 800;
-            font-size: 18px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            padding: 3px 10px;
+            border-radius: 16px;
+            letter-spacing: 0.4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
             transition: transform 0.3s;
         }
 
@@ -327,11 +327,11 @@
         .error {
             background: #fee2e2;
             color: #991b1b;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             font-weight: 600;
-            border-radius: 12px;
-            margin: 10px;
+            border-radius: 10px;
+            margin: 8px;
             animation: fadeIn 0.5s ease;
         }
 
@@ -339,26 +339,26 @@
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 16px;
-            margin-bottom: 10px;
-            border-radius: 14px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            border-radius: 10px;
             background: #f3f4f6;
             animation: shimmer 1.5s infinite;
         }
 
         .skeleton-icon {
-            width: 32px;
-            height: 32px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: #e5e7eb;
-            margin-right: 16px;
+            margin-right: 12px;
         }
         .skeleton-line {
-            height: 16px;
+            height: 12px;
             background: #e5e7eb;
-            border-radius: 8px;
+            border-radius: 6px;
             flex: 1;
-            margin-right: 16px;
+            margin-right: 12px;
         }
         .skeleton-line.short { flex: 0.5; }
         .skeleton-line.tiny { flex: 0.3; }
@@ -391,55 +391,65 @@
 
         /* ----- Responsive (Mobile) ----- */
         @media (max-width: 768px) {
-            .dashboard { padding: 16px; border-radius: 16px; }
-            .badge { padding: 8px 14px; font-size: 13px; }
-            .col-icon { width: 48px; }
-            .col-checklist { min-width: 140px; font-size: 15px; }
-            .col-last, .col-next { min-width: 110px; font-size: 14px; }
-            .col-remain { font-size: 16px; }
-            .status-icon { width: 28px; height: 28px; }
-            .remain-days { font-size: 16px; padding: 5px 10px; }
-            .forecast-badge { font-size: 12px; padding: 6px 12px; }
+            .dashboard { padding: 12px; border-radius: 14px; }
+            .badge { padding: 5px 10px; font-size: 11px; }
+            .col-icon { width: 36px; }
+            .col-checklist { min-width: 120px; font-size: 12px; }
+            .col-last, .col-next { min-width: 90px; font-size: 11px; }
+            .col-remain { font-size: 13px; }
+            .status-icon { width: 22px; height: 22px; }
+            .remain-days { font-size: 12px; padding: 2px 8px; }
+            .forecast-badge { font-size: 10px; padding: 3px 8px; }
+            .table-header { padding: 8px 10px; font-size: 10px; }
+            .row { padding: 8px 10px; }
+            .skeleton-row { padding: 8px 10px; }
         }
 
-        /* Single-line row layout for mobile */
+        /* Mobile layout: allow text wrapping and show full content */
         @media (max-width: 600px) {
             .table-header { display: none; }
 
             .row {
                 flex-direction: row;
-                align-items: center;
-                padding: 10px 12px;
+                align-items: flex-start; /* align top for wrapped text */
+                padding: 8px 10px;
                 gap: 6px;
             }
 
-            .col-icon { width: 32px; flex-shrink: 0; }
+            .col-icon { width: 28px; flex-shrink: 0; margin-top: 2px; }
+
+            /* Reset text truncation and allow wrapping */
+            .col-checklist,
+            .col-last,
+            .col-next {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                word-break: break-word;
+                min-width: 0; /* allow shrinking */
+            }
+
             .col-checklist {
-                min-width: 0;
                 flex: 2;
-                font-size: 13px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                font-size: 11px;
+                line-height: 1.3;
             }
             .col-last, .col-next {
-                min-width: 0;
                 flex: 1.2;
-                font-size: 11px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                font-size: 10px;
+                line-height: 1.3;
             }
             .col-remain {
                 flex: 0.8;
-                font-size: 14px;
+                font-size: 12px;
                 text-align: right;
+                margin-top: 2px;
             }
 
-            .status-icon { width: 24px; height: 24px; }
-            .remain-days { font-size: 12px; padding: 2px 8px; }
+            .status-icon { width: 20px; height: 20px; }
+            .remain-days { font-size: 10px; padding: 1px 6px; }
 
-            /* Remove pseudo-element labels (not used in single-line) */
+            /* Remove any pseudo-element labels */
             .col-checklist::before,
             .col-last::before,
             .col-next::before,
@@ -447,29 +457,26 @@
                 content: none;
             }
 
-            /* Header adjustments to fit on one line */
+            /* Header: allow wrapping, not horizontal scroll */
             .dashboard-header {
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
                 gap: 6px;
-                margin-bottom: 16px;
+                margin-bottom: 12px;
             }
             .forecast-container {
-                flex-wrap: nowrap;
+                flex-wrap: wrap;
                 gap: 4px;
-            }
-            .forecast-badge {
-                font-size: 10px;
-                padding: 4px 8px;
-                white-space: nowrap;
+                order: 2; /* move to second line if needed */
+                width: 100%;
             }
             .title-badge {
                 font-size: 11px;
-                padding: 6px 10px;
+                padding: 4px 8px;
                 white-space: nowrap;
             }
             .last-updated {
                 font-size: 10px;
-                padding: 6px 10px;
+                padding: 4px 8px;
                 white-space: nowrap;
             }
             .updating-indicator {
@@ -480,27 +487,21 @@
                 height: 12px;
                 border-width: 2px;
             }
+            .forecast-badge {
+                font-size: 10px;
+                padding: 3px 8px;
+                white-space: nowrap;
+            }
         }
 
         /* Extra small screens */
         @media (max-width: 400px) {
-            .dashboard-header {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                padding-bottom: 4px;
-            }
-            .dashboard-header > div {
-                flex-shrink: 0;
-            }
-            .forecast-container {
-                flex-shrink: 0;
-            }
-            .col-checklist { font-size: 11px; }
-            .col-last, .col-next { font-size: 10px; }
-            .col-remain { font-size: 12px; }
-            .status-icon { width: 20px; height: 20px; }
-            .remain-days { font-size: 10px; padding: 1px 6px; }
+            .col-checklist { font-size: 10px; }
+            .col-last, .col-next { font-size: 9px; }
+            .col-remain { font-size: 11px; }
+            .status-icon { width: 18px; height: 18px; }
+            .remain-days { font-size: 9px; padding: 1px 5px; }
+            .forecast-badge { font-size: 9px; padding: 2px 6px; }
         }
     </style>
 </head>
@@ -523,7 +524,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
                 <div class="updating-indicator" id="updating-indicator">
                     <div class="spinner"></div>
                     <span>Updating...</span>
