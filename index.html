@@ -19,7 +19,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 16px;
         }
 
         .dashboard {
@@ -30,12 +30,40 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
             padding: 20px;
             position: relative;
+            overflow: hidden;
         }
 
-        /* Floating badges */
-        .badge {
+        /* Animated top gradient bar */
+        .dashboard::before {
+            content: '';
             position: absolute;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981, #3b82f6, #ef4444);
+            background-size: 200% 100%;
+            animation: gradientShift 4s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .dashboard-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .badge {
             padding: 10px 18px;
             border-radius: 20px;
             font-weight: 600;
@@ -44,26 +72,110 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         .title-badge {
-            top: 20px;
-            left: 20px;
             background: #e0e7ff;
             color: #3730a3;
             border: 1px solid #c7d2fe;
+            animation: fadeInDown 0.5s ease;
         }
 
         .last-updated {
-            top: 20px;
-            right: 20px;
             background: #f3f4f6;
             color: #1f2937;
             border: 1px solid #d1d5db;
+            animation: fadeInDown 0.5s ease 0.1s both;
         }
 
-        /* Header row */
+        /* Forecast container */
+        .forecast-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            animation: fadeInDown 0.6s ease 0.2s both;
+        }
+
+        .forecast-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s;
+        }
+
+        .forecast-badge:hover {
+            transform: scale(1.05);
+        }
+
+        /* Alarm badge */
+        .forecast-badge.alarm {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            animation: pulseGlowRed 2s infinite;
+        }
+
+        /* Warning badge */
+        .forecast-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            animation: pulseGlowYellow 2s infinite;
+        }
+
+        /* OK badge */
+        .forecast-badge.ok {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+            animation: pulseGlowGreen 2.5s infinite;
+        }
+
+        @keyframes pulseGlowRed {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        @keyframes pulseGlowYellow {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        @keyframes pulseGlowGreen {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .updating-indicator {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            color: #6b7280;
+            font-size: 13px;
+            animation: fadeIn 0.3s ease;
+        }
+        .updating-indicator.active {
+            display: flex;
+        }
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #d1d5db;
+            border-top-color: #3730a3;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
         .table-header {
             display: flex;
             align-items: center;
@@ -79,13 +191,11 @@
             letter-spacing: 0.8px;
         }
 
-        /* Column widths */
         .col-icon { width: 60px; flex-shrink: 0; }
         .col-checklist { flex: 2; min-width: 180px; }
         .col-last, .col-next { flex: 1.5; min-width: 140px; }
         .col-remain { flex: 1; text-align: right; }
 
-        /* Data rows */
         .row {
             display: flex;
             align-items: center;
@@ -93,17 +203,38 @@
             padding: 16px;
             margin-bottom: 10px;
             border-radius: 14px;
-            transition: box-shadow 0.2s, transform 0.1s;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
             background: #fff;
+            animation: fadeInUp 0.6s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated stripe on hover */
+        .row::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmerRow 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmerRow {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
         }
 
         .row:hover {
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.08);
-            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
         }
 
-        /* Status colors */
         .row.alarm {
             background: #fee2e2;
             border-left: 6px solid #ef4444;
@@ -117,25 +248,23 @@
             border-left: 6px solid #10b981;
         }
 
-        /* Text styles */
         .col-checklist {
             font-weight: 600;
             font-size: 16px;
             color: #111827;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
         }
         .col-last, .col-next {
             font-size: 15px;
             color: #1f2937;
             font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
         }
         .col-remain {
             font-weight: 700;
             font-size: 18px;
         }
 
-        /* Status icon */
         .status-icon {
             display: inline-flex;
             align-items: center;
@@ -144,13 +273,46 @@
             height: 32px;
             border-radius: 50%;
             background: #ffffff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
         }
-        .status-icon.alarm { color: #ef4444; }
-        .status-icon.warning { color: #f59e0b; }
-        .status-icon.ok { color: #10b981; }
 
-        /* Remain days badge */
+        /* Alarm icon */
+        .status-icon.alarm {
+            color: #ef4444;
+            animation: pulseRed 1.5s infinite;
+        }
+
+        /* Warning icon */
+        .status-icon.warning {
+            color: #f59e0b;
+            animation: pulseYellow 2s infinite;
+        }
+
+        /* OK icon */
+        .status-icon.ok {
+            color: #10b981;
+            animation: pulseGreen 2.5s infinite;
+        }
+
+        @keyframes pulseRed {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        @keyframes pulseYellow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.07); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes pulseGreen {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
         .remain-days {
             display: inline-block;
             background: #ffffff;
@@ -160,8 +322,13 @@
             padding: 6px 14px;
             border-radius: 20px;
             letter-spacing: 0.5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+            transition: transform 0.3s;
+        }
+
+        .row:hover .remain-days {
+            transform: scale(1.05);
         }
 
         .error {
@@ -172,81 +339,280 @@
             font-weight: 600;
             border-radius: 12px;
             margin: 10px;
+            animation: fadeIn 0.5s ease;
         }
 
-        .loading {
-            padding: 30px;
-            text-align: center;
-            color: #6b7280;
-            font-style: italic;
+        .skeleton-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 10px;
+            border-radius: 14px;
+            background: #f3f4f6;
+            animation: shimmer 1.5s infinite;
+        }
+
+        .skeleton-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            margin-right: 16px;
+        }
+        .skeleton-line {
+            height: 16px;
+            background: #e5e7eb;
+            border-radius: 8px;
+            flex: 1;
+            margin-right: 16px;
+        }
+        .skeleton-line.short { flex: 0.5; }
+        .skeleton-line.tiny { flex: 0.3; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: 200px 0; }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .skeleton-row {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200px 100%;
+            animation: shimmer 1.5s infinite;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .badge {
-                padding: 8px 14px;
-                font-size: 12px;
-            }
-            .col-icon { width: 40px; }
-            .col-checklist { min-width: 120px; font-size: 14px; }
-            .col-last, .col-next { min-width: 100px; font-size: 13px; }
+            .dashboard { padding: 16px; border-radius: 16px; }
+            .badge { padding: 8px 14px; font-size: 13px; }
+            .col-icon { width: 48px; }
+            .col-checklist { min-width: 140px; font-size: 15px; }
+            .col-last, .col-next { min-width: 110px; font-size: 14px; }
             .col-remain { font-size: 16px; }
-            .status-icon { width: 26px; height: 26px; }
-            .remain-days { font-size: 15px; padding: 5px 10px; }
+            .status-icon { width: 28px; height: 28px; }
+            .remain-days { font-size: 16px; padding: 5px 10px; }
+            .forecast-badge { font-size: 12px; padding: 6px 12px; }
+        }
+
+        @media (max-width: 600px) {
+            .table-header { display: none; }
+            .row {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px;
+                gap: 12px;
+            }
+            .col-icon { width: 100%; display: flex; justify-content: flex-start; }
+            .col-checklist, .col-last, .col-next, .col-remain {
+                width: 100%;
+                min-width: 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 4px 0;
+                font-size: 15px;
+                text-align: left;
+            }
+            .col-checklist::before { content: "Checklist"; font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-right: 12px; }
+            .col-last::before { content: "Last Inspection"; font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-right: 12px; }
+            .col-next::before { content: "Next Inspection"; font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-right: 12px; }
+            .col-remain::before { content: "Remain Days"; font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-right: 12px; }
+            .col-remain { justify-content: space-between; }
+            .remain-days { font-size: 16px; padding: 4px 12px; }
+            .forecast-container { width: 100%; justify-content: space-between; }
+        }
+
+        @media (max-width: 400px) {
+            .dashboard-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .badge { font-size: 12px; padding: 6px 12px; }
+            .row { padding: 12px; gap: 8px; }
+            .col-checklist, .col-last, .col-next, .col-remain { font-size: 14px; }
+            .status-icon { width: 24px; height: 24px; }
+            .remain-days { font-size: 14px; padding: 3px 10px; }
+            .forecast-badge { font-size: 11px; padding: 4px 10px; }
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <!-- Floating badges -->
-        <div class="badge title-badge">
-            <span>📋</span> Checklist Tracker
-        </div>
-        <div class="badge last-updated" id="last-updated">Last updated: --</div>
-
-        <!-- Layout -->
-        <div style="padding-top: 80px;">
-            <div class="table-header">
-                <div class="col-icon"></div>
-                <div class="col-checklist">Checklist</div>
-                <div class="col-last">Last Inspection</div>
-                <div class="col-next">Next Inspection</div>
-                <div class="col-remain">Remain Days</div>
+        <div class="dashboard-header">
+            <div class="badge title-badge">
+                <span>📋</span> Checklist Tracker
             </div>
-            <div id="report-data" class="loading">Loading...</div>
+
+            <div class="forecast-container" id="forecast-container">
+                <div class="forecast-badge alarm" id="forecast-alarm" style="display:none;">
+                    <span>🔴</span> <span class="count" id="count-alarm">0</span> Alarm
+                </div>
+                <div class="forecast-badge warning" id="forecast-warning" style="display:none;">
+                    <span>🟡</span> <span class="count" id="count-warning">0</span> Warning
+                </div>
+                <div class="forecast-badge ok" id="forecast-ok" style="display:none;">
+                    <span>🟢</span> <span class="count" id="count-ok">0</span> OK
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="updating-indicator" id="updating-indicator">
+                    <div class="spinner"></div>
+                    <span>Updating...</span>
+                </div>
+                <div class="badge last-updated" id="last-updated">Last updated: --</div>
+            </div>
+        </div>
+
+        <div class="table-header">
+            <div class="col-icon"></div>
+            <div class="col-checklist">Checklist</div>
+            <div class="col-last">Last Inspection</div>
+            <div class="col-next">Next Inspection</div>
+            <div class="col-remain">Remain Days</div>
+        </div>
+
+        <div id="report-data">
+            <div class="skeleton-row">
+                <div class="skeleton-icon"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line tiny"></div>
+            </div>
+            <div class="skeleton-row">
+                <div class="skeleton-icon"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line tiny"></div>
+            </div>
+            <div class="skeleton-row">
+                <div class="skeleton-icon"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line tiny"></div>
+            </div>
         </div>
     </div>
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbw-d5UeDPUyOWggq3mY5juj9TC4NrEwnCRYpwpJYcsFskVpgtumq4Fzz9NhQriH_jjT/exec';
 
-        // SVG icons for status
         const ICONS = {
             alarm: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 9v4m0 4h.01M12 3l9 16H3l9-16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
             warning: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8v4m0 4h.01M12 3l9 16H3l9-16z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
             ok: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
         };
 
+        let hasLoadedOnce = false;
+        let previousCounts = { alarm: 0, warning: 0, ok: 0 };
+
+        function showSkeleton() {
+            const container = document.getElementById('report-data');
+            container.innerHTML = `
+                <div class="skeleton-row"><div class="skeleton-icon"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div>
+                <div class="skeleton-row"><div class="skeleton-icon"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div>
+                <div class="skeleton-row"><div class="skeleton-icon"></div><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line tiny"></div></div>
+            `;
+        }
+
+        function showUpdatingIndicator(show) {
+            const indicator = document.getElementById('updating-indicator');
+            if (show) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        }
+
+        function animateCount(element, start, end, duration = 800) {
+            const startTime = performance.now();
+            const target = end;
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const currentValue = Math.floor(progress * (target - start) + start);
+                element.textContent = currentValue;
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = target;
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        function updateForecast(counts) {
+            const alarmBadge = document.getElementById('forecast-alarm');
+            const warningBadge = document.getElementById('forecast-warning');
+            const okBadge = document.getElementById('forecast-ok');
+
+            const alarmCountEl = document.getElementById('count-alarm');
+            const warningCountEl = document.getElementById('count-warning');
+            const okCountEl = document.getElementById('count-ok');
+
+            alarmBadge.style.display = counts.alarm > 0 ? 'flex' : 'none';
+            warningBadge.style.display = counts.warning > 0 ? 'flex' : 'none';
+            okBadge.style.display = counts.ok > 0 ? 'flex' : 'none';
+
+            if (hasLoadedOnce) {
+                animateCount(alarmCountEl, previousCounts.alarm, counts.alarm);
+                animateCount(warningCountEl, previousCounts.warning, counts.warning);
+                animateCount(okCountEl, previousCounts.ok, counts.ok);
+            } else {
+                alarmCountEl.textContent = counts.alarm;
+                warningCountEl.textContent = counts.warning;
+                okCountEl.textContent = counts.ok;
+            }
+
+            previousCounts = { ...counts };
+        }
+
         async function loadData() {
             try {
+                if (!hasLoadedOnce) {
+                    showSkeleton();
+                } else {
+                    showUpdatingIndicator(true);
+                }
+
                 const res = await fetch(API_URL);
                 const data = await res.json();
 
                 if (!Array.isArray(data) || data.length === 0) {
                     document.getElementById('report-data').innerHTML = '<div class="error">No data found.</div>';
                     document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleString();
+                    hasLoadedOnce = true;
+                    showUpdatingIndicator(false);
+                    updateForecast({ alarm: 0, warning: 0, ok: 0 });
                     return;
                 }
 
-                // Sort by Remain days ascending (most urgent first)
                 data.sort((a, b) => {
                     const aVal = (a['Remain days'] === '' || a['Remain days'] === null || a['Remain days'] === undefined) ? 99999 : Number(a['Remain days']);
                     const bVal = (b['Remain days'] === '' || b['Remain days'] === null || b['Remain days'] === undefined) ? 99999 : Number(b['Remain days']);
                     return aVal - bVal;
                 });
 
+                let counts = { alarm: 0, warning: 0, ok: 0 };
+
                 let html = '';
-                data.forEach(row => {
+                data.forEach((row, index) => {
                     const remain = Number(row['Remain days']);
                     const alarm = Number(row['Alarm Time']) || 0;
                     const prewarn = Number(row['Pre Warning']) || 7;
@@ -257,14 +623,24 @@
                         if (remain <= alarm) {
                             rowClass = 'alarm';
                             iconType = 'alarm';
+                            counts.alarm++;
                         } else if (remain <= prewarn) {
                             rowClass = 'warning';
                             iconType = 'warning';
+                            counts.warning++;
+                        } else {
+                            rowClass = 'ok';
+                            iconType = 'ok';
+                            counts.ok++;
                         }
+                    } else {
+                        counts.ok++;
                     }
 
+                    const delay = Math.min(index * 0.05, 0.5);
+
                     html += `
-                        <div class="row ${rowClass}">
+                        <div class="row ${rowClass}" style="animation-delay: ${delay}s">
                             <div class="col-icon">
                                 <span class="status-icon ${iconType}">${ICONS[iconType]}</span>
                             </div>
@@ -278,15 +654,21 @@
 
                 document.getElementById('report-data').innerHTML = html;
                 document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleString();
+                updateForecast(counts);
+                hasLoadedOnce = true;
+                showUpdatingIndicator(false);
             } catch (error) {
                 document.getElementById('report-data').innerHTML = '<div class="error">Failed to load data. Check API URL.</div>';
+                document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleString();
                 console.error(error);
+                hasLoadedOnce = true;
+                showUpdatingIndicator(false);
+                updateForecast({ alarm: 0, warning: 0, ok: 0 });
             }
         }
 
-        // Initial load and refresh every 10 seconds
         loadData();
-        setInterval(loadData, 10000);
+        setInterval(loadData, 30000);
     </script>
 </body>
 </html>
