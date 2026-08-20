@@ -114,7 +114,6 @@
             transform: scale(1.05);
         }
 
-        /* Alarm badge */
         .forecast-badge.alarm {
             background: #fee2e2;
             color: #b91c1c;
@@ -122,7 +121,6 @@
             animation: pulseGlowRed 2s infinite;
         }
 
-        /* Warning badge */
         .forecast-badge.warning {
             background: #fef3c7;
             color: #92400e;
@@ -130,7 +128,6 @@
             animation: pulseGlowYellow 2s infinite;
         }
 
-        /* OK badge */
         .forecast-badge.ok {
             background: #d1fae5;
             color: #065f46;
@@ -211,7 +208,6 @@
             overflow: hidden;
         }
 
-        /* Animated stripe on hover */
         .row::after {
             content: '';
             position: absolute;
@@ -277,19 +273,16 @@
             transition: transform 0.3s;
         }
 
-        /* Alarm icon */
         .status-icon.alarm {
             color: #ef4444;
             animation: pulseRed 1.5s infinite;
         }
 
-        /* Warning icon */
         .status-icon.warning {
             color: #f59e0b;
             animation: pulseYellow 2s infinite;
         }
 
-        /* OK icon */
         .status-icon.ok {
             color: #10b981;
             animation: pulseGreen 2.5s infinite;
@@ -396,7 +389,7 @@
             animation: shimmer 1.5s infinite;
         }
 
-        /* Responsive */
+        /* ----- Responsive (Mobile) ----- */
         @media (max-width: 768px) {
             .dashboard { padding: 16px; border-radius: 16px; }
             .badge { padding: 8px 14px; font-size: 13px; }
@@ -409,42 +402,105 @@
             .forecast-badge { font-size: 12px; padding: 6px 12px; }
         }
 
+        /* Single-line row layout for mobile */
         @media (max-width: 600px) {
             .table-header { display: none; }
+
             .row {
-                flex-direction: column;
-                align-items: stretch;
-                padding: 16px;
-                gap: 12px;
-            }
-            .col-icon { width: 100%; display: flex; justify-content: flex-start; }
-            .col-checklist, .col-last, .col-next, .col-remain {
-                width: 100%;
-                min-width: 0;
-                display: flex;
-                justify-content: space-between;
+                flex-direction: row;
                 align-items: center;
-                padding: 4px 0;
-                font-size: 15px;
-                text-align: left;
+                padding: 10px 12px;
+                gap: 6px;
             }
-            .col-checklist::before { content: "Checklist"; font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-right: 12px; }
-            .col-last::before { content: "Last Inspection"; font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-right: 12px; }
-            .col-next::before { content: "Next Inspection"; font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-right: 12px; }
-            .col-remain::before { content: "Remain Days"; font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; margin-right: 12px; }
-            .col-remain { justify-content: space-between; }
-            .remain-days { font-size: 16px; padding: 4px 12px; }
-            .forecast-container { width: 100%; justify-content: space-between; }
+
+            .col-icon { width: 32px; flex-shrink: 0; }
+            .col-checklist {
+                min-width: 0;
+                flex: 2;
+                font-size: 13px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .col-last, .col-next {
+                min-width: 0;
+                flex: 1.2;
+                font-size: 11px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .col-remain {
+                flex: 0.8;
+                font-size: 14px;
+                text-align: right;
+            }
+
+            .status-icon { width: 24px; height: 24px; }
+            .remain-days { font-size: 12px; padding: 2px 8px; }
+
+            /* Remove pseudo-element labels (not used in single-line) */
+            .col-checklist::before,
+            .col-last::before,
+            .col-next::before,
+            .col-remain::before {
+                content: none;
+            }
+
+            /* Header adjustments to fit on one line */
+            .dashboard-header {
+                flex-wrap: nowrap;
+                gap: 6px;
+                margin-bottom: 16px;
+            }
+            .forecast-container {
+                flex-wrap: nowrap;
+                gap: 4px;
+            }
+            .forecast-badge {
+                font-size: 10px;
+                padding: 4px 8px;
+                white-space: nowrap;
+            }
+            .title-badge {
+                font-size: 11px;
+                padding: 6px 10px;
+                white-space: nowrap;
+            }
+            .last-updated {
+                font-size: 10px;
+                padding: 6px 10px;
+                white-space: nowrap;
+            }
+            .updating-indicator {
+                font-size: 10px;
+            }
+            .spinner {
+                width: 12px;
+                height: 12px;
+                border-width: 2px;
+            }
         }
 
+        /* Extra small screens */
         @media (max-width: 400px) {
-            .dashboard-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-            .badge { font-size: 12px; padding: 6px 12px; }
-            .row { padding: 12px; gap: 8px; }
-            .col-checklist, .col-last, .col-next, .col-remain { font-size: 14px; }
-            .status-icon { width: 24px; height: 24px; }
-            .remain-days { font-size: 14px; padding: 3px 10px; }
-            .forecast-badge { font-size: 11px; padding: 4px 10px; }
+            .dashboard-header {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 4px;
+            }
+            .dashboard-header > div {
+                flex-shrink: 0;
+            }
+            .forecast-container {
+                flex-shrink: 0;
+            }
+            .col-checklist { font-size: 11px; }
+            .col-last, .col-next { font-size: 10px; }
+            .col-remain { font-size: 12px; }
+            .status-icon { width: 20px; height: 20px; }
+            .remain-days { font-size: 10px; padding: 1px 6px; }
         }
     </style>
 </head>
