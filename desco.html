@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DESCO | Smart Energy Analytics</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f8fafc">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        desco: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'card': '0 2px 8px -2px rgba(15, 23, 42, 0.05), 0 4px 12px -2px rgba(15, 23, 42, 0.05)',
+                        'floating': '0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-header {
+            background: rgba(248, 250, 252, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        .skeleton {
+            background: #e2e8f0;
+            background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0) 40%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        .health-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Responsive Table & Overflow Fixes for PC & Mobile */
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        @media (min-width: 1024px) {
+            .desktop-grid-split {
+                display: grid;
+                grid-template-columns: repeat(12, minmax(0, 1fr));
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col selection:bg-desco-200 selection:text-desco-900">
+    <!-- Header -->
+    <header class="glass-header sticky top-0 z-50 px-4 py-3 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-br from-desco-500 to-desco-700 text-white p-2.5 rounded-xl shadow-sm">
+                    <i class="ph-fill ph-lightning text-xl sm:text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold text-slate-900 leading-none tracking-tight">DESCO <span class="font-light text-slate-500">Smart Energy</span></h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2 sm:gap-4">
+                <div class="hidden md:flex items-center gap-2 text-xs font-semibold bg-white/80 text-slate-600 px-3 py-1.5 rounded-full border border-slate-200 shadow-sm backdrop-blur-sm">
+                    <div class="relative flex h-2.5 w-2.5">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-desco-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-desco-500"></span>
+                    </div>
+                    <span id="lastUpdateText">Connecting...</span>
+                </div>
+                <button id="refreshBtnGlobal" class="p-2.5 bg-white border border-slate-200 text-slate-700 hover:text-desco-700 hover:border-desco-300 hover:bg-desco-50 rounded-xl transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-desco-500 focus:ring-offset-2 active:scale-95 flex items-center gap-2" aria-label="Refresh Data">
+                    <i class="ph ph-arrows-clockwise text-lg sm:text-xl"></i>
+                    <span class="text-xs font-semibold hidden sm:inline">Refresh</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 animate-fade-in">
+        
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center sm:justify-start">
+            <div class="inline-flex bg-slate-200/60 p-1.5 rounded-2xl w-full sm:w-auto overflow-x-auto hide-scrollbar border border-slate-200 shadow-inner" id="viewTabs">
+                <button class="tab-btn active px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-slate-900 bg-white shadow-sm transition-all whitespace-nowrap flex items-center justify-center gap-2 flex-1 sm:flex-initial" data-view="summary">
+                    <i class="ph-fill ph-squares-four text-desco-600 text-base"></i> Portfolio
+                </button>
+                <button class="tab-btn px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-slate-500 hover:text-slate-700 transition-all whitespace-nowrap flex items-center justify-center gap-2 flex-1 sm:flex-initial" data-view="meters">
+                    <i class="ph ph-list-dashes text-slate-400 text-base"></i> Meters Directory
+                </button>
+                <button class="tab-btn px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl text-slate-500 hover:text-slate-700 transition-all whitespace-nowrap flex items-center justify-center gap-2 flex-1 sm:flex-initial" data-view="analytics">
+                    <i class="ph ph-chart-line-up text-slate-400 text-base"></i> Analytics & History
+                </button>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Area -->
+        <div id="content-area" class="relative min-h-[500px]">
+            <!-- Skeletons -->
+            <div id="loading-skeleton" class="absolute inset-0 z-10 w-full space-y-6 bg-slate-50">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="skeleton h-32 rounded-2xl"></div><div class="skeleton h-32 rounded-2xl"></div>
+                    <div class="skeleton h-32 rounded-2xl"></div><div class="skeleton h-32 rounded-2xl"></div>
+                </div>
+                <div class="skeleton h-96 rounded-2xl"></div>
+            </div>
+
+            <!-- VIEW: SUMMARY -->
+            <div id="view-summary" class="view-section hidden space-y-8">
+                <!-- KPI Grid -->
+                <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6" id="portfolioKpis">
+                    <!-- JS Injected -->
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Portfolio Chart -->
+                    <div class="lg:col-span-8 bg-white rounded-3xl shadow-card p-5 sm:p-6 border border-slate-100 flex flex-col">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6">
+                            <div>
+                                <h2 class="text-base sm:text-lg font-bold text-slate-900">Energy Consumption</h2>
+                                <p class="text-xs sm:text-sm text-slate-500">Aggregate usage across all properties (Last 6 Months)</p>
+                            </div>
+                            <div class="p-2 bg-desco-50 text-desco-600 rounded-xl">
+                                <i class="ph-fill ph-trend-up text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="relative flex-1 w-full h-[280px] sm:h-[320px]">
+                            <canvas id="portfolioConsumptionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Action Center (Alerts) -->
+                    <div class="lg:col-span-4 bg-white rounded-3xl shadow-card border border-slate-100 flex flex-col overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <i class="ph-fill ph-bell-ringing text-amber-500 text-lg"></i> Action Center
+                            </h2>
+                            <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full shadow-sm" id="alertCount">0</span>
+                        </div>
+                        <div id="alertsContainer" class="flex-1 overflow-y-auto max-h-[320px] p-3 space-y-2.5 bg-slate-50/30 hide-scrollbar">
+                             <!-- JS Injected -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Consumers Table -->
+                <div class="bg-white rounded-3xl shadow-card border border-slate-100 overflow-hidden">
+                    <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
+                        <div>
+                            <h2 class="text-base sm:text-lg font-bold text-slate-900">Highest Consumers</h2>
+                            <p class="text-xs sm:text-sm text-slate-500">Based on last 30 days usage</p>
+                        </div>
+                        <button onclick="switchTab('meters')" class="text-xs sm:text-sm font-semibold text-desco-600 hover:text-desco-800 flex items-center gap-1 transition-colors">
+                            View All Meters <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive-wrapper">
+                        <table class="w-full text-sm text-left whitespace-nowrap">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
+                                <tr>
+                                    <th class="px-4 sm:px-6 py-3.5 font-semibold tracking-wider">Property / Meter</th>
+                                    <th class="px-4 sm:px-6 py-3.5 font-semibold tracking-wider text-right">30d Usage</th>
+                                    <th class="px-4 sm:px-6 py-3.5 font-semibold tracking-wider text-right">Est. Bill</th>
+                                    <th class="px-4 sm:px-6 py-3.5 font-semibold tracking-wider text-right">Balance</th>
+                                    <th class="px-4 sm:px-6 py-3.5 font-semibold tracking-wider text-center">Health</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topConsumersTableBody" class="divide-y divide-slate-100 bg-white">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: METERS DIRECTORY -->
+            <div id="view-meters" class="view-section hidden space-y-8">
+                <!-- Search & Filter Bar -->
+                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                            <i class="ph ph-magnifying-glass text-slate-400 text-lg"></i>
+                        </div>
+                        <input type="text" id="meterSearch" class="w-full pl-11 pr-4 py-3 bg-slate-50 border-transparent focus:bg-white text-slate-900 text-sm rounded-xl focus:ring-2 focus:ring-desco-500 focus:border-transparent transition-all outline-none" placeholder="Search by name, account, or meter number...">
+                    </div>
+                    <div class="w-full sm:w-52 relative">
+                        <select id="filterStatus" class="w-full appearance-none pl-4 pr-10 py-3 bg-slate-50 border-transparent focus:bg-white text-slate-700 text-sm rounded-xl focus:ring-2 focus:ring-desco-500 focus:border-transparent transition-all outline-none cursor-pointer font-medium">
+                            <option value="all">All Statuses</option>
+                            <option value="low">Critical Balance Only</option>
+                            <option value="healthy">Healthy Balance</option>
+                        </select>
+                        <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <!-- Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="meterGrid">
+                    <!-- JS Injected -->
+                </div>
+
+                <!-- MASTER PORTFOLIO SUMMARY SHEET -->
+                <div class="bg-white rounded-3xl shadow-card border border-slate-100 overflow-hidden mt-12 animate-slide-up">
+                    <div class="p-5 sm:p-8 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <div class="flex items-center gap-2 text-desco-700 font-bold text-xs uppercase tracking-wider mb-1">
+                                <i class="ph-fill ph-table text-base"></i> Master Audit Sheet
+                            </div>
+                            <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Complete Portfolio Summary</h2>
+                            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Consolidated account balances, cumulative consumption, and historical recharges.</p>
+                        </div>
+                        <button onclick="window.print()" class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 hover:text-desco-700 hover:border-desco-300 rounded-xl font-semibold text-xs transition-all shadow-sm flex items-center gap-2">
+                            <i class="ph-bold ph-printer text-base"></i> Print Audit Sheet
+                        </button>
+                    </div>
+
+                    <!-- Summary Stats Quick Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 border-b border-slate-100 bg-slate-50/30 text-center">
+                        <div class="p-4 sm:p-5">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Meters</div>
+                            <div class="text-xl sm:text-2xl font-black text-slate-900" id="summarySheetTotalMeters">0</div>
+                        </div>
+                        <div class="p-4 sm:p-5">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Vault Balance</div>
+                            <div class="text-xl sm:text-2xl font-black text-slate-900" id="summarySheetTotalBalance">৳0</div>
+                        </div>
+                        <div class="p-4 sm:p-5">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">30d Usage</div>
+                            <div class="text-xl sm:text-2xl font-black text-slate-900" id="summarySheetTotalUsage">0 kWh</div>
+                        </div>
+                        <div class="p-4 sm:p-5">
+                            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Recharges (12m)</div>
+                            <div class="text-xl sm:text-2xl font-black text-slate-900" id="summarySheetTotalRecharges">৳0</div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Summary Table -->
+                    <div class="table-responsive-wrapper">
+                        <table class="w-full text-sm text-left whitespace-nowrap">
+                            <thead class="text-xs text-slate-500 uppercase bg-slate-50/80 border-b border-slate-100 font-semibold">
+                                <tr>
+                                    <th class="px-4 sm:px-6 py-4">Account & Meter #</th>
+                                    <th class="px-4 sm:px-6 py-4">Customer Name</th>
+                                    <th class="px-4 sm:px-6 py-4 text-right">Current Balance</th>
+                                    <th class="px-4 sm:px-6 py-4 text-right">30d Usage</th>
+                                    <th class="px-4 sm:px-6 py-4 text-right">Last Month Bill</th>
+                                    <th class="px-4 sm:px-6 py-4 text-right">Total Recharge (12m)</th>
+                                    <th class="px-4 sm:px-6 py-4 text-center">Health Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="summarySheetTableBody" class="divide-y divide-slate-100 bg-white">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ANALYTICS -->
+            <div id="view-analytics" class="view-section hidden space-y-6">
+                <!-- Selector -->
+                <div class="bg-white rounded-3xl shadow-card p-5 sm:p-6 border border-slate-100">
+                    <div class="max-w-xl mx-auto text-center space-y-3">
+                        <h2 class="text-lg sm:text-xl font-bold text-slate-900">Meter Deep Dive or Portfolio Aggregate</h2>
+                        <p class="text-xs sm:text-sm text-slate-500">Select an individual account or choose total aggregate analysis.</p>
+                        <div class="relative mt-3 max-w-md mx-auto">
+                            <select id="analyticsMeterSelect" class="w-full appearance-none pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 text-slate-900 text-sm sm:text-base font-medium rounded-2xl focus:ring-4 focus:ring-desco-500/20 focus:border-desco-500 transition-all outline-none shadow-sm cursor-pointer">
+                                <option value="TOTAL_AGGREGATE" selected>⚡ All Meters (Total Aggregate Analysis)</option>
+                                <option value="" disabled>--- Individual Meters ---</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                <div class="bg-white p-1 rounded-lg shadow-sm border border-slate-100">
+                                    <i class="ph-bold ph-caret-down text-desco-600"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div id="analyticsContent" class="space-y-6 animate-slide-up">
+                    <!-- Selected Meter Header KPI -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="analyticsHeaderKpis">
+                        <!-- JS Injected -->
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-3xl shadow-card border border-slate-100 p-5 sm:p-6 flex flex-col">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 class="text-sm sm:text-base font-bold text-slate-900" id="chart1Title">Daily Consumption</h3>
+                                    <p class="text-[11px] sm:text-xs text-slate-500" id="chart1Sub">Last 30 active days</p>
+                                </div>
+                                <div class="bg-blue-50 text-blue-600 p-2.5 rounded-xl"><i class="ph-fill ph-calendar-blank text-lg"></i></div>
+                            </div>
+                            <div class="relative h-64 w-full"><canvas id="chartDailySpecific"></canvas></div>
+                        </div>
+                        
+                        <div class="bg-white rounded-3xl shadow-card border border-slate-100 p-5 sm:p-6 flex flex-col">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 class="text-sm sm:text-base font-bold text-slate-900" id="chart2Title">Cost & Usage Trends</h3>
+                                    <p class="text-[11px] sm:text-xs text-slate-500" id="chart2Sub">Monthly historical data (1 Year)</p>
+                                </div>
+                                <div class="bg-amber-50 text-amber-600 p-2.5 rounded-xl"><i class="ph-fill ph-coin text-lg"></i></div>
+                            </div>
+                            <div class="relative h-64 w-full"><canvas id="chartMonthlySpecific"></canvas></div>
+                        </div>
+                    </div>
+
+                    <!-- Extended Recharge History Table -->
+                    <div class="bg-white rounded-3xl shadow-card border border-slate-100 overflow-hidden">
+                        <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-emerald-50 text-emerald-600 p-2.5 rounded-xl"><i class="ph-fill ph-receipt text-xl"></i></div>
+                                <div>
+                                    <h3 class="text-sm sm:text-base font-bold text-slate-900" id="tableTitle">Extended Recharge History</h3>
+                                    <p class="text-xs text-slate-500" id="tableSub">All token recharges recorded over the past 12 months</p>
+                                </div>
+                            </div>
+                            <div class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full" id="analyticsRechargeCountBadge">0 recharges</div>
+                        </div>
+                        <div class="table-responsive-wrapper max-h-[420px]">
+                            <table class="w-full text-sm text-left whitespace-nowrap">
+                                <thead class="text-xs text-slate-500 uppercase bg-slate-50/95 backdrop-blur-sm sticky top-0 border-b border-slate-100">
+                                    <tr id="tableHeaderRow">
+                                        <!-- JS Injected -->
+                                    </tr>
+                                </thead>
+                                <tbody id="analyticsRechargeTable" class="divide-y divide-slate-100 bg-white">
+                                    <!-- JS Injected -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Global Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-floating text-sm font-medium transition-all duration-300 opacity-0 translate-y-4 pointer-events-none z-[100] flex items-center gap-3 border border-slate-800">
+        <i class="ph-fill ph-check-circle text-desco-400 text-lg"></i>
+        <span id="toastMsg">Action successful</span>
+    </div>
+
+    <script>
+        // --- Configuration & Constants ---
+        const ACCOUNTS = ['11136931','11136941','11136951','12035020','12035021','12035022','12035023','11136631'];
+        const PROXIES = [null, 'https://api.allorigins.win/raw?url=', 'https://corsproxy.io/?'];
+        const LOW_BALANCE_THRESHOLD = 500;
+        const HEALTHY_BALANCE_TARGET = 3000;
+
+        // --- State ---
+        const state = {
+            dataMap: {},
+            isLoading: true,
+            currentView: 'summary',
+            activeAnalyticsAcc: 'TOTAL_AGGREGATE',
+            charts: { portfolio: null, dailySpec: null, monthlySpec: null }
+        };
+
+        // --- Utilities ---
+        const formatMoney = (val) => val != null && !isNaN(val) ? Number(val).toLocaleString('en-BD', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '—';
+        const formatNum = (val) => val != null && !isNaN(val) ? Number(val).toLocaleString('en-BD', { maximumFractionDigits: 1 }) : '—';
+        
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            el.classList.remove('opacity-0', 'translate-y-4');
+            el.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                el.classList.remove('opacity-100', 'translate-y-0');
+                el.classList.add('opacity-0', 'translate-y-4');
+            }, 3000);
+        }
+
+        async function copyToken(token, btnEl) {
+            try {
+                await navigator.clipboard.writeText(token);
+                showToast(`Token copied to clipboard`);
+                const icon = btnEl.querySelector('i');
+                const origClass = icon ? icon.className : '';
+                const origText = btnEl.querySelector('span');
+                const origTextContent = origText ? origText.textContent : '';
+                
+                if(icon) icon.className = 'ph-bold ph-check text-emerald-600';
+                if(origText) {
+                    origText.textContent = 'Copied';
+                    btnEl.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                }
+                
+                setTimeout(() => { 
+                    if(icon) icon.className = origClass; 
+                    if(origText) {
+                        origText.textContent = origTextContent;
+                        btnEl.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+                    }
+                }, 2000);
+            } catch (err) {
+                console.error('Copy failed', err);
+                showToast("Failed to copy. Please select text manually.");
+            }
+        }
+
+        // --- API Layer ---
+        async function apiFetch(url) {
+            let lastError = null;
+            for (const proxy of PROXIES) {
+                let fullUrl = proxy === null ? url : proxy + encodeURIComponent(url);
+                try {
+                    const res = await fetch(fullUrl, { cache: "no-store" });
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    const json = await res.json();
+                    if (json && json.code === 200) return json.data;
+                } catch (e) {
+                    lastError = e;
+                }
+            }
+            throw lastError || new Error('All fetching methods failed');
+        }
+
+        async function fetchMeterData(acc) {
+            try {
+                const info = await apiFetch(`https://prepaid.desco.org.bd/api/unified/customer/getCustomerInfo?accountNo=${acc}&meterNo=`);
+                const meterNo = info?.meterNo || '';
+                
+                const now = new Date();
+                const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+                const monthFrom = `${twelveMonthsAgo.getFullYear()}-${String(twelveMonthsAgo.getMonth()+1).padStart(2,'0')}`;
+                const monthTo = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+                const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(now.getDate() - 30);
+                const dailyFrom = `${thirtyDaysAgo.getFullYear()}-${String(thirtyDaysAgo.getMonth()+1).padStart(2,'0')}-${String(thirtyDaysAgo.getDate()).padStart(2,'0')}`;
+                const dailyTo = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+                
+                const oneYearAgo = new Date(now); oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                const rechFrom = `${oneYearAgo.getFullYear()}-${String(oneYearAgo.getMonth()+1).padStart(2,'0')}-${String(oneYearAgo.getDate()).padStart(2,'0')}`;
+                const rechTo = dailyTo;
+
+                const [balRes, monthRes, dailyRes, rechRes] = await Promise.allSettled([
+                    apiFetch(`https://prepaid.desco.org.bd/api/unified/customer/getBalance?accountNo=${acc}&meterNo=${meterNo}`),
+                    apiFetch(`https://prepaid.desco.org.bd/api/unified/customer/getCustomerMonthlyConsumption?accountNo=${acc}&meterNo=${meterNo}&monthFrom=${monthFrom}&monthTo=${monthTo}`),
+                    apiFetch(`https://prepaid.desco.org.bd/api/unified/customer/getCustomerDailyConsumption?accountNo=${acc}&meterNo=${meterNo}&dateFrom=${dailyFrom}&dateTo=${dailyTo}`),
+                    apiFetch(`https://prepaid.desco.org.bd/api/unified/customer/getRechargeHistory?accountNo=${acc}&meterNo=${meterNo}&dateFrom=${rechFrom}&dateTo=${rechTo}`)
+                ]);
+
+                const bal = balRes.status === 'fulfilled' ? balRes.value : { balance: 0 };
+                const monthly = monthRes.status === 'fulfilled' ? (monthRes.value || []) : [];
+                const dailyRaw = dailyRes.status === 'fulfilled' ? (dailyRes.value || []) : [];
+                const recharge = rechRes.status === 'fulfilled' ? (rechRes.value || []) : [];
+
+                let last30DaysUsage = 0;
+                let dailyUsageData = [];
+                const sortedDailyRaw = dailyRaw.sort((a,b) => new Date(a.date) - new Date(b.date));
+                
+                for(let i = 1; i < sortedDailyRaw.length; i++) {
+                    const diff = Math.max(0, (sortedDailyRaw[i].consumedUnit || 0) - (sortedDailyRaw[i-1].consumedUnit || 0));
+                    dailyUsageData.push({ date: sortedDailyRaw[i].date, usage: diff });
+                    last30DaysUsage += diff;
+                }
+
+                const lastMonthData = monthly.length > 0 ? monthly[monthly.length-1] : { consumedUnit: 0, consumedTaka: 0 };
+                const totalRecharge12m = recharge.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+
+                return {
+                    account: acc,
+                    meterNo: meterNo,
+                    name: info?.customerName || 'Unknown User',
+                    balance: bal?.balance || 0,
+                    readingTime: bal?.readingTime || 'N/A',
+                    lastMonthUsage: lastMonthData.consumedUnit || 0,
+                    lastMonthCost: lastMonthData.consumedTaka || 0,
+                    last30DaysUsage: last30DaysUsage,
+                    monthlyHistory: monthly,
+                    dailyUsageData: dailyUsageData,
+                    rechargeHistory: recharge,
+                    totalRecharge12m: totalRecharge12m
+                };
+            } catch (error) {
+                console.error(`Fetch failed for ${acc}`, error);
+                return null;
+            }
+        }
+
+        // --- Renderers ---
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.scale.grid.color = '#f1f5f9';
+
+        function renderSummaryDashboard() {
+            const accountsData = Object.values(state.dataMap).filter(d => d !== null);
+            if(accountsData.length === 0) return;
+
+            const totalBalance = accountsData.reduce((sum, d) => sum + d.balance, 0);
+            const totalUsage30d = accountsData.reduce((sum, d) => sum + d.last30DaysUsage, 0);
+            const totalCostLastMonth = accountsData.reduce((sum, d) => sum + d.lastMonthCost, 0);
+            const lowBalanceCount = accountsData.filter(d => d.balance < LOW_BALANCE_THRESHOLD).length;
+
+            // KPIs
+            document.getElementById('portfolioKpis').innerHTML = `
+                <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-card flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform"><i class="ph-fill ph-wallet text-5xl sm:text-6xl text-slate-900"></i></div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 mb-2">Total Balance</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">৳${formatMoney(totalBalance)}</div>
+                </div>
+                <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-card flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform"><i class="ph-fill ph-lightning text-5xl sm:text-6xl text-slate-900"></i></div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 mb-2">Usage (30 Days)</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">${formatNum(totalUsage30d)} <span class="text-sm sm:text-base font-medium text-slate-400">kWh</span></div>
+                </div>
+                <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-card flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform"><i class="ph-fill ph-receipt text-5xl sm:text-6xl text-slate-900"></i></div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 mb-2">Last Month Bill</div>
+                    <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">৳${formatMoney(totalCostLastMonth)}</div>
+                </div>
+                <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-card flex flex-col justify-between relative overflow-hidden group">
+                     <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform"><i class="ph-fill ph-plugs-connected text-5xl sm:text-6xl text-slate-900"></i></div>
+                     <div class="text-xs sm:text-sm font-semibold text-slate-500 mb-2">Meters Monitored</div>
+                     <div class="flex items-end justify-between z-10">
+                         <div class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">${accountsData.length}</div>
+                         ${lowBalanceCount > 0 
+                            ? `<div class="text-[11px] sm:text-xs font-bold bg-red-100 text-red-700 px-2.5 py-1 rounded-full shadow-sm animate-pulse border border-red-200 flex items-center gap-1"><i class="ph-fill ph-warning-circle"></i> ${lowBalanceCount} Alert</div>` 
+                            : `<div class="text-[11px] sm:text-xs font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full shadow-sm border border-emerald-200">All Good</div>`}
+                     </div>
+                </div>
+            `;
+
+            // Alerts
+            const alertsContainer = document.getElementById('alertsContainer');
+            const alertCountBadge = document.getElementById('alertCount');
+            let alertsHtml = '';
+            
+            accountsData.forEach(d => {
+                if(d.balance < LOW_BALANCE_THRESHOLD) {
+                    const healthPct = Math.max(5, (d.balance / LOW_BALANCE_THRESHOLD) * 100);
+                    alertsHtml += `
+                        <div class="p-3 bg-white rounded-2xl border border-red-100 shadow-sm cursor-pointer hover:border-red-300 hover:shadow-md transition-all group" onclick="switchTab('analytics', '${d.account}')">
+                            <div class="flex items-start gap-3">
+                                <div class="bg-red-50 p-2 rounded-full group-hover:bg-red-100 transition-colors shrink-0"><i class="ph-fill ph-warning-circle text-red-500 text-lg"></i></div>
+                                <div class="flex-1 w-full min-w-0">
+                                    <div class="flex justify-between items-start gap-2">
+                                        <div class="text-xs sm:text-sm font-bold text-slate-900 truncate">${d.name}</div>
+                                        <div class="text-xs sm:text-sm font-black text-red-600 shrink-0">৳${formatMoney(d.balance)}</div>
+                                    </div>
+                                    <div class="text-[11px] text-slate-500 font-mono mt-0.5">${d.account}</div>
+                                    <div class="w-full bg-slate-100 rounded-full h-1 mt-2 overflow-hidden">
+                                        <div class="bg-red-500 h-1 rounded-full" style="width: ${healthPct}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if(alertsHtml === '') {
+                alertsHtml = `
+                <div class="flex flex-col items-center justify-center py-10 px-4 text-center">
+                    <div class="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mb-3">
+                        <i class="ph-fill ph-check-circle text-2xl text-emerald-500"></i>
+                    </div>
+                    <p class="text-xs sm:text-sm font-semibold text-slate-700">All systems optimal</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">No meters require immediate attention.</p>
+                </div>`;
+            }
+            alertsContainer.innerHTML = alertsHtml;
+            alertCountBadge.textContent = lowBalanceCount;
+            if(lowBalanceCount > 0) {
+                alertCountBadge.classList.replace('bg-amber-100', 'bg-red-500');
+                alertCountBadge.classList.replace('text-amber-800', 'text-white');
+                alertCountBadge.classList.add('animate-pulse');
+            }
+
+            // Top Consumers Table
+            const tbody = document.getElementById('topConsumersTableBody');
+            tbody.innerHTML = [...accountsData].sort((a,b) => b.last30DaysUsage - a.last30DaysUsage).slice(0, 5).map(d => {
+                const isLow = d.balance < LOW_BALANCE_THRESHOLD;
+                let healthPct = Math.min(100, (d.balance / HEALTHY_BALANCE_TARGET) * 100);
+                let barColor = isLow ? 'bg-red-500' : (healthPct > 60 ? 'bg-emerald-500' : 'bg-amber-500');
+                
+                return `
+                <tr class="hover:bg-slate-50/80 transition-colors cursor-pointer group" onclick="switchTab('analytics', '${d.account}')">
+                    <td class="px-4 sm:px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-desco-100 group-hover:text-desco-700 transition-colors shrink-0">
+                                <i class="ph-fill ph-house"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-bold text-slate-900 group-hover:text-desco-700 transition-colors truncate">${d.name}</div>
+                                <div class="text-xs font-mono text-slate-500">${d.account}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 sm:px-6 py-4 text-right">
+                        <div class="text-sm font-bold text-slate-700 bg-slate-100 inline-block px-2 py-1 rounded-md">${formatNum(d.last30DaysUsage)} <span class="text-xs font-normal text-slate-500">kWh</span></div>
+                    </td>
+                    <td class="px-4 sm:px-6 py-4 text-right">
+                        <div class="text-sm font-medium text-slate-600">৳${formatMoney(d.lastMonthCost)}</div>
+                    </td>
+                    <td class="px-4 sm:px-6 py-4 text-right">
+                        <div class="text-sm font-black ${isLow ? 'text-red-600' : 'text-slate-900'}">৳${formatMoney(d.balance)}</div>
+                    </td>
+                    <td class="px-4 sm:px-6 py-4 align-middle">
+                        <div class="flex flex-col items-center gap-1 w-24 ml-auto">
+                            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                                <div class="${barColor} h-1.5 rounded-full health-bar-fill" style="width: ${Math.max(5, healthPct)}%"></div>
+                            </div>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase">${isLow ? 'Critical' : 'Good'}</span>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+
+            renderPortfolioChart(accountsData);
+        }
+
+        function renderPortfolioChart(accountsData) {
+            const monthlyAgg = {};
+            accountsData.forEach(acc => {
+                acc.monthlyHistory.forEach(r => {
+                    if(!monthlyAgg[r.month]) monthlyAgg[r.month] = 0;
+                    monthlyAgg[r.month] += (r.consumedUnit || 0);
+                });
+            });
+            const labels = Object.keys(monthlyAgg).sort().slice(-6);
+            const data = labels.map(m => monthlyAgg[m]);
+            const ctx = document.getElementById('portfolioConsumptionChart').getContext('2d');
+            if(state.charts.portfolio) state.charts.portfolio.destroy();
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(34, 197, 94, 0.4)');
+            gradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)');
+
+            state.charts.portfolio = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.map(l => new Date(l + "-01").toLocaleDateString('en-US', { month: 'short', year: '2-digit' })),
+                    datasets: [{
+                        label: 'Total Usage (kWh)',
+                        data: data,
+                        borderColor: '#16a34a',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#16a34a',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleFont: { size: 13 },
+                            bodyFont: { size: 14, weight: 'bold' },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: { label: (ctx) => formatNum(ctx.raw) + ' kWh' }
+                        },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, border: { display: false }, grid: { drawTicks: false } },
+                        x: { border: { display: false }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderMeterDirectory() {
+            const grid = document.getElementById('meterGrid');
+            const searchTerm = document.getElementById('meterSearch').value.toLowerCase();
+            const filterVal = document.getElementById('filterStatus').value;
+            let accountsData = Object.values(state.dataMap).filter(d => d !== null);
+
+            accountsData = accountsData.filter(d => {
+                const matchesSearch = d.name.toLowerCase().includes(searchTerm) || d.account.includes(searchTerm) || d.meterNo.includes(searchTerm);
+                let matchesStatus = true;
+                if(filterVal === 'low') matchesStatus = d.balance < LOW_BALANCE_THRESHOLD;
+                if(filterVal === 'healthy') matchesStatus = d.balance >= LOW_BALANCE_THRESHOLD;
+                return matchesSearch && matchesStatus;
+            });
+            accountsData.sort((a, b) => a.balance - b.balance);
+
+            if(accountsData.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 bg-white rounded-3xl border border-slate-100 border-dashed"><i class="ph ph-magnifying-glass text-4xl mb-3 text-slate-300"></i><p class="text-sm font-medium">No meters found matching your search criteria.</p></div>`;
+            } else {
+                grid.innerHTML = accountsData.map(d => {
+                    const isLow = d.balance < LOW_BALANCE_THRESHOLD;
+                    let healthPct = Math.min(100, (d.balance / HEALTHY_BALANCE_TARGET) * 100);
+                    const latestRecharge = d.rechargeHistory && d.rechargeHistory.length > 0 ? d.rechargeHistory[0] : null;
+                    
+                    return `
+                    <div class="bg-white rounded-3xl border ${isLow ? 'border-red-200 shadow-sm' : 'border-slate-100 shadow-card hover:shadow-floating'} transition-all flex flex-col relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-1.5 ${isLow ? 'bg-red-500' : 'bg-emerald-500'}"></div>
+                        
+                        <div class="p-5 sm:p-6 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start gap-3 mb-4">
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="font-bold text-slate-900 text-base sm:text-lg leading-tight truncate cursor-pointer group-hover:text-desco-600 transition-colors" onclick="switchTab('analytics', '${d.account}')">${d.name}</h3>
+                                    <div class="text-xs text-slate-500 mt-1.5 flex items-center gap-2 font-mono flex-wrap">
+                                        <span class="bg-slate-100 px-1.5 py-0.5 rounded">${d.account}</span>
+                                        <span class="text-slate-300">•</span>
+                                        <span class="truncate">${d.meterNo}</span>
+                                    </div>
+                                </div>
+                                <button class="text-slate-400 hover:text-desco-600 bg-slate-50 hover:bg-desco-50 p-2.5 rounded-xl transition-colors shrink-0" onclick="switchTab('analytics', '${d.account}')" title="Analytics">
+                                    <i class="ph-bold ph-chart-line-up text-lg"></i>
+                                </button>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="text-xs font-semibold text-slate-500 mb-1 flex justify-between">
+                                    <span>Current Balance</span>
+                                    ${isLow ? '<span class="text-red-600 font-bold flex items-center gap-1"><i class="ph-fill ph-warning"></i> Critical</span>' : ''}
+                                </div>
+                                <div class="text-2xl sm:text-3xl font-black ${isLow ? 'text-red-600' : 'text-slate-900'} tracking-tight">৳${formatMoney(d.balance)}</div>
+                                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+                                    <div class="${isLow ? 'bg-red-500' : 'bg-emerald-500'} h-1.5 rounded-full health-bar-fill" style="width: ${Math.max(5, healthPct)}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">30d Usage</div>
+                                    <div class="text-sm font-bold text-slate-800">${formatNum(d.last30DaysUsage)} <span class="font-medium text-xs text-slate-500">kWh</span></div>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Last Bill</div>
+                                    <div class="text-sm font-bold text-slate-800">৳${formatMoney(d.lastMonthCost)}</div>
+                                </div>
+                            </div>
+                            
+                            ${latestRecharge ? `
+                            <div class="mt-auto">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Latest Token <span class="normal-case font-medium text-slate-400">(${(latestRecharge.rechargeDate || '').split(' ')[0]})</span></span>
+                                    <span class="text-xs font-bold text-desco-700 bg-desco-50 px-2 py-0.5 rounded-md">৳${formatMoney(latestRecharge.totalAmount)}</span>
+                                </div>
+                                <div class="flex items-center gap-2 bg-slate-50 rounded-xl p-1.5 border border-slate-200/60">
+                                    <code class="text-xs font-mono font-bold text-slate-700 flex-1 truncate px-2 select-all">${latestRecharge.tokenNo || 'N/A'}</code>
+                                    <button class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 text-slate-600 hover:text-desco-700 hover:bg-desco-50 transition-colors text-xs font-semibold flex items-center gap-1 shrink-0" onclick="copyToken('${latestRecharge.tokenNo}', this)">
+                                        <i class="ph-bold ph-copy"></i> <span>Copy</span>
+                                    </button>
+                                </div>
+                            </div>
+                            ` : '<div class="text-xs text-slate-400 italic text-center py-4 bg-slate-50 rounded-xl mt-auto">No recent recharge history</div>'}
+                        </div>
+
+                        <div class="bg-slate-50/80 px-5 sm:px-6 py-2.5 border-t border-slate-100 text-[10px] font-medium text-slate-400 flex justify-between items-center">
+                            <span class="truncate">Sync: ${d.readingTime}</span>
+                            <div class="w-1.5 h-1.5 rounded-full ${isLow ? 'bg-red-400' : 'bg-emerald-400'} shrink-0"></div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            }
+            renderMasterSummarySheet(Object.values(state.dataMap).filter(d => d !== null));
+        }
+
+        function renderMasterSummarySheet(accountsData) {
+            const totalMeters = accountsData.length;
+            const totalBalance = accountsData.reduce((s, d) => s + d.balance, 0);
+            const totalUsage = accountsData.reduce((s, d) => s + d.last30DaysUsage, 0);
+            const totalRecharges12m = accountsData.reduce((s, d) => s + d.totalRecharge12m, 0);
+
+            document.getElementById('summarySheetTotalMeters').textContent = totalMeters;
+            document.getElementById('summarySheetTotalBalance').textContent = `৳${formatMoney(totalBalance)}`;
+            document.getElementById('summarySheetTotalUsage').textContent = `${formatNum(totalUsage)} kWh`;
+            document.getElementById('summarySheetTotalRecharges').textContent = `৳${formatMoney(totalRecharges12m)}`;
+
+            const tbody = document.getElementById('summarySheetTableBody');
+            tbody.innerHTML = accountsData.sort((a,b) => a.balance - b.balance).map(d => {
+                const isLow = d.balance < LOW_BALANCE_THRESHOLD;
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="switchTab('analytics', '${d.account}')">
+                        <td class="px-4 sm:px-6 py-4 font-mono">
+                            <div class="font-bold text-slate-900">${d.account}</div>
+                            <div class="text-xs text-slate-400">${d.meterNo || 'N/A'}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 font-semibold text-slate-900">${d.name}</td>
+                        <td class="px-4 sm:px-6 py-4 text-right font-black ${isLow ? 'text-red-600' : 'text-slate-900'}">৳${formatMoney(d.balance)}</td>
+                        <td class="px-4 sm:px-6 py-4 text-right font-semibold text-slate-700">${formatNum(d.last30DaysUsage)} kWh</td>
+                        <td class="px-4 sm:px-6 py-4 text-right font-medium text-slate-600">৳${formatMoney(d.lastMonthCost)}</td>
+                        <td class="px-4 sm:px-6 py-4 text-right font-bold text-desco-700">৳${formatMoney(d.totalRecharge12m)}</td>
+                        <td class="px-4 sm:px-6 py-4 text-center">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${isLow ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
+                                ${isLow ? 'Critical' : 'Healthy'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderAnalyticsDropdown() {
+            const select = document.getElementById('analyticsMeterSelect');
+            const accountsData = Object.values(state.dataMap).filter(d => d !== null);
+            const currentVal = select.value;
+            
+            select.innerHTML = `
+                <option value="TOTAL_AGGREGATE">⚡ All Meters (Total Aggregate Analysis)</option>
+                <option value="" disabled>--- Individual Meters ---</option>
+            ` + accountsData.map(d => `<option value="${d.account}">${d.name} (${d.account})</option>`).join('');
+                
+            if(currentVal && (currentVal === 'TOTAL_AGGREGATE' || state.dataMap[currentVal])) {
+                select.value = currentVal;
+            } else if (state.activeAnalyticsAcc) {
+                select.value = state.activeAnalyticsAcc;
+            }
+        }
+
+        function renderAnalyticsView() {
+            const acc = document.getElementById('analyticsMeterSelect').value;
+            state.activeAnalyticsAcc = acc;
+            if (acc === 'TOTAL_AGGREGATE') {
+                renderTotalAggregateAnalytics();
+            } else {
+                renderSingleMeterAnalytics(acc);
+            }
+        }
+
+        function renderTotalAggregateAnalytics() {
+            const accountsData = Object.values(state.dataMap).filter(d => d !== null);
+            if (accountsData.length === 0) return;
+
+            const totalBalance = accountsData.reduce((sum, d) => sum + d.balance, 0);
+            const totalUsage30d = accountsData.reduce((sum, d) => sum + d.last30DaysUsage, 0);
+            const totalRecharge12m = accountsData.reduce((sum, d) => sum + d.totalRecharge12m, 0);
+
+            document.getElementById('analyticsHeaderKpis').innerHTML = `
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4">
+                    <div class="bg-slate-50 p-3 rounded-full shrink-0"><i class="ph-fill ph-squares-four text-xl text-slate-600"></i></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Scope</div>
+                        <div class="text-sm font-bold text-slate-900 truncate">Total Portfolio</div>
+                        <div class="text-xs text-slate-500 font-mono mt-0.5">${accountsData.length} Meters</div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4">
+                    <div class="bg-desco-50 p-3 rounded-full shrink-0"><i class="ph-fill ph-wallet text-xl text-desco-600"></i></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Total Balance</div>
+                        <div class="text-base sm:text-lg font-black text-slate-900 truncate">৳${formatMoney(totalBalance)}</div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4">
+                    <div class="bg-amber-50 p-3 rounded-full shrink-0"><i class="ph-fill ph-lightning text-xl text-amber-500"></i></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">30d Total Usage</div>
+                        <div class="text-base sm:text-lg font-black text-slate-900 truncate">${formatNum(totalUsage30d)} <span class="text-xs sm:text-sm font-medium text-slate-500">kWh</span></div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4">
+                    <div class="bg-blue-50 p-3 rounded-full shrink-0"><i class="ph-fill ph-receipt text-xl text-blue-500"></i></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Total Recharges</div>
+                        <div class="text-base sm:text-lg font-black text-slate-900 truncate">৳${formatMoney(totalRecharge12m)}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('chart1Title').textContent = 'Portfolio Daily Consumption';
+            document.getElementById('chart1Sub').textContent = 'Sum of daily usage across all meters (Last 30 Days)';
+            document.getElementById('chart2Title').textContent = 'Portfolio Monthly Cost & Usage Trends';
+            document.getElementById('chart2Sub').textContent = 'Cumulative monthly totals across all properties (1 Year)';
+            document.getElementById('tableTitle').textContent = 'Master Portfolio Recharge Feed';
+            document.getElementById('tableSub').textContent = 'All token recharges chronologically combined across all meters';
+
+            const dateMap = {};
+            accountsData.forEach(acc => {
+                (acc.dailyUsageData || []).forEach(d => {
+                    if(!dateMap[d.date]) dateMap[d.date] = 0;
+                    dateMap[d.date] += (d.usage || 0);
+                });
+            });
+            const sortedDates = Object.keys(dateMap).sort();
+            const dailyAggData = sortedDates.map(date => ({ date, usage: dateMap[date] }));
+
+            const monthMap = {};
+            accountsData.forEach(acc => {
+                (acc.monthlyHistory || []).forEach(m => {
+                    if(!monthMap[m.month]) monthMap[m.month] = { consumedUnit: 0, consumedTaka: 0 };
+                    monthMap[m.month].consumedUnit += (m.consumedUnit || 0);
+                    monthMap[m.month].consumedTaka += (m.consumedTaka || 0);
+                });
+            });
+            const sortedMonths = Object.keys(monthMap).sort();
+            const monthlyAggArray = sortedMonths.map(month => ({ month, ...monthMap[month] }));
+
+            renderSpecificCharts({ dailyUsageData: dailyAggData, monthlyHistory: monthlyAggArray });
+
+            let allRecharges = [];
+            accountsData.forEach(acc => {
+                (acc.rechargeHistory || []).forEach(r => {
+                    allRecharges.push({ ...r, customerName: acc.name, accountNo: acc.account });
+                });
+            });
+            allRecharges.sort((a, b) => new Date(b.rechargeDate || 0) - new Date(a.rechargeDate || 0));
+
+            document.getElementById('tableHeaderRow').innerHTML = `
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">#</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">Account & Customer</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">Date & Time</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">Amount Paid</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">Token Number</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold text-right">Action</th>
+            `;
+
+            const tbody = document.getElementById('analyticsRechargeTable');
+            const rechargeBadge = document.getElementById('analyticsRechargeCountBadge');
+            rechargeBadge.textContent = `${allRecharges.length} total recharges`;
+
+            if(allRecharges.length > 0) {
+                tbody.innerHTML = allRecharges.map((r, idx) => {
+                    const [date, time] = (r.rechargeDate || '').split(' ');
+                    return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400">${idx + 1}</td>
+                        <td class="px-4 sm:px-6 py-4">
+                            <div class="text-sm font-bold text-slate-900">${r.customerName}</div>
+                            <div class="text-xs text-slate-500 font-mono">${r.accountNo}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-semibold text-slate-900">${date}</div>
+                            <div class="text-xs text-slate-500">${time || ''}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-bold text-desco-700 bg-desco-50 inline-block px-2.5 py-1 rounded-lg">৳${formatMoney(r.totalAmount)}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4">
+                            <code class="text-sm font-mono font-medium text-slate-700 tracking-tight select-all">${r.tokenNo || '-'}</code>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-right">
+                            ${r.tokenNo ? `<button class="text-slate-600 hover:text-desco-700 font-semibold text-xs bg-white border border-slate-200 hover:border-desco-300 hover:bg-desco-50 px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5 ml-auto" onclick="copyToken('${r.tokenNo}', this)"><i class="ph-bold ph-copy"></i><span>Copy</span></button>` : '-'}
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            } else {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500 bg-slate-50 rounded-b-3xl">No recharge records found across portfolio.</td></tr>`;
+            }
+        }
+
+        function renderSingleMeterAnalytics(acc) {
+            if(!state.dataMap[acc]) return;
+            const data = state.dataMap[acc];
+
+            document.getElementById('analyticsHeaderKpis').innerHTML = `
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4">
+                    <div class="bg-slate-50 p-3 rounded-full shrink-0"><i class="ph-fill ph-user text-xl text-slate-600"></i></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Account</div>
+                        <div class="text-sm font-bold text-slate-900 truncate" title="${data.name}">${data.name}</div>
+                        <div class="text-xs text-slate-500 font-mono mt-0.5">${data.account}</div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4">
+                    <div class="bg-desco-50 p-3 rounded-full shrink-0"><i class="ph-fill ph-wallet text-xl text-desco-600"></i></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Balance</div>
+                        <div class="text-base sm:text-lg font-black ${data.balance < LOW_BALANCE_THRESHOLD ? 'text-red-600' : 'text-slate-900'} truncate">৳${formatMoney(data.balance)}</div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4">
+                    <div class="bg-amber-50 p-3 rounded-full shrink-0"><i class="ph-fill ph-lightning text-xl text-amber-500"></i></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Avg Daily (30d)</div>
+                        <div class="text-base sm:text-lg font-black text-slate-900 truncate">${formatNum(data.last30DaysUsage / 30)} <span class="text-xs sm:text-sm font-medium text-slate-500">kWh</span></div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3 sm:gap-4">
+                    <div class="bg-blue-50 p-3 rounded-full shrink-0"><i class="ph-fill ph-receipt text-xl text-blue-500"></i></div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Total Recharges</div>
+                        <div class="text-base sm:text-lg font-black text-slate-900 truncate">৳${formatMoney(data.totalRecharge12m)}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('chart1Title').textContent = 'Daily Consumption';
+            document.getElementById('chart1Sub').textContent = 'Last 30 active days';
+            document.getElementById('chart2Title').textContent = 'Cost & Usage Trends';
+            document.getElementById('chart2Sub').textContent = 'Monthly historical data (1 Year)';
+            document.getElementById('tableTitle').textContent = 'Extended Recharge History';
+            document.getElementById('tableSub').textContent = 'All token recharges recorded over the past 12 months';
+
+            renderSpecificCharts(data);
+
+            document.getElementById('tableHeaderRow').innerHTML = `
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">#</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">Date & Time</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">Amount Paid</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold">Token Number</th>
+                <th class="px-4 sm:px-6 py-3.5 font-semibold text-right">Action</th>
+            `;
+
+            const tbody = document.getElementById('analyticsRechargeTable');
+            const rechargeBadge = document.getElementById('analyticsRechargeCountBadge');
+            
+            if(data.rechargeHistory && data.rechargeHistory.length > 0) {
+                rechargeBadge.textContent = `${data.rechargeHistory.length} recharges found`;
+                tbody.innerHTML = data.rechargeHistory.map((r, idx) => {
+                    const [date, time] = (r.rechargeDate || '').split(' ');
+                    return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-4 sm:px-6 py-4 text-xs font-bold text-slate-400">${idx + 1}</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-semibold text-slate-900">${date}</div>
+                            <div class="text-xs text-slate-500">${time || ''}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-bold text-desco-700 bg-desco-50 inline-block px-2.5 py-1 rounded-lg">৳${formatMoney(r.totalAmount)}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4">
+                            <code class="text-sm font-mono font-medium text-slate-700 tracking-tight select-all">${r.tokenNo || '-'}</code>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 text-right">
+                            ${r.tokenNo ? `<button class="text-slate-600 hover:text-desco-700 font-semibold text-xs bg-white border border-slate-200 hover:border-desco-300 hover:bg-desco-50 px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5 ml-auto" onclick="copyToken('${r.tokenNo}', this)"><i class="ph-bold ph-copy"></i><span>Copy</span></button>` : '-'}
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            } else {
+                rechargeBadge.textContent = `0 recharges`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-500 bg-slate-50 rounded-b-3xl">No recharge history found for this account over the past 12 months.</td></tr>`;
+            }
+        }
+
+        function renderSpecificCharts(data) {
+            const displayDaily = data.dailyUsageData || [];
+            const dailyCtx = document.getElementById('chartDailySpecific').getContext('2d');
+            if(state.charts.dailySpec) state.charts.dailySpec.destroy();
+            
+            state.charts.dailySpec = new Chart(dailyCtx, {
+                type: 'bar',
+                data: {
+                    labels: displayDaily.map(d => new Date(d.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })),
+                    datasets: [{
+                        label: 'Usage (kWh)',
+                        data: displayDaily.map(d => d.usage),
+                        backgroundColor: displayDaily.map(d => d.usage > 50 ? '#ef4444' : '#3b82f6'),
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 10, borderRadius: 8,
+                            callbacks: { label: (ctx) => `${formatNum(ctx.raw)} kWh` }
+                        },
+                        datalabels: {
+                            anchor: 'end', align: 'top',
+                            formatter: (v) => v > 40 ? Math.round(v) : '',
+                            font: { size: 9, weight: 'bold' },
+                            color: '#64748b'
+                        }
+                    },
+                    scales: {
+                        y: { display: false, beginAtZero: true },
+                        x: { grid: { display: false }, border: {display: false}, ticks: { font: {size: 10}, maxTicksLimit: 10 } }
+                    },
+                    layout: { padding: { top: 20 } }
+                }
+            });
+
+            const monthlyCtx = document.getElementById('chartMonthlySpecific').getContext('2d');
+            if(state.charts.monthlySpec) state.charts.monthlySpec.destroy();
+            const sortedMonthly = [...(data.monthlyHistory || [])].sort((a,b) => a.month.localeCompare(b.month));
+            
+            state.charts.monthlySpec = new Chart(monthlyCtx, {
+                data: {
+                    labels: sortedMonthly.map(m => new Date(m.month + "-01").toLocaleDateString('en-US', { month: 'short', year: '2-digit' })),
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Cost (৳)',
+                            data: sortedMonthly.map(m => m.consumedTaka || 0),
+                            borderColor: '#f59e0b', backgroundColor: '#fef3c7',
+                            borderWidth: 3, tension: 0.4,
+                            pointBackgroundColor: '#ffffff', pointBorderColor: '#f59e0b', pointBorderWidth: 2, pointRadius: 4,
+                            yAxisID: 'y1',
+                            datalabels: { display: false }
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Usage (kWh)',
+                            data: sortedMonthly.map(m => m.consumedUnit || 0),
+                            backgroundColor: '#d1fae5', borderColor: '#10b981',
+                            borderWidth: 1, borderRadius: 6,
+                            yAxisID: 'y',
+                            datalabels: { display: false }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { 
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 8, font: {size: 11, weight: 'bold'} } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 10, borderRadius: 8,
+                        }
+                    },
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', grid: { color: '#f1f5f9' }, border: {display: false} },
+                        y1: { type: 'linear', display: false, position: 'right', grid: { drawOnChartArea: false } },
+                        x: { grid: { display: false }, border: {display: false} }
+                    }
+                }
+            });
+        }
+
+        // --- Navigation ---
+        function switchTab(viewId, accToSelect = null) {
+            state.currentView = viewId;
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const icon = btn.querySelector('i');
+                if(btn.dataset.view === viewId) {
+                    btn.classList.add('bg-white', 'text-slate-900', 'shadow-sm', 'active');
+                    btn.classList.remove('text-slate-500', 'hover:text-slate-700');
+                    if(icon && icon.className.includes('ph-squares-four')) icon.className = 'ph-fill ph-squares-four text-desco-600 text-base';
+                    if(icon && icon.className.includes('ph-list-dashes')) icon.className = 'ph-bold ph-list-dashes text-desco-600 text-base';
+                    if(icon && icon.className.includes('ph-chart-line-up')) icon.className = 'ph-bold ph-chart-line-up text-desco-600 text-base';
+                } else {
+                    btn.classList.remove('bg-white', 'text-slate-900', 'shadow-sm', 'active');
+                    btn.classList.add('text-slate-500', 'hover:text-slate-700');
+                    if(icon && icon.className.includes('ph-squares-four')) icon.className = 'ph ph-squares-four text-slate-400 text-base';
+                    if(icon && icon.className.includes('ph-list-dashes')) icon.className = 'ph ph-list-dashes text-slate-400 text-base';
+                    if(icon && icon.className.includes('ph-chart-line-up')) icon.className = 'ph ph-chart-line-up text-slate-400 text-base';
+                }
+            });
+
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('animate-fade-in');
+            });
+            
+            const activeView = document.getElementById(`view-${viewId}`);
+            if(activeView) {
+                activeView.classList.remove('hidden');
+                void activeView.offsetWidth;
+                activeView.classList.add('animate-fade-in');
+            }
+
+            if (viewId === 'meters') renderMeterDirectory();
+            else if (viewId === 'analytics') {
+                if (accToSelect) {
+                    state.activeAnalyticsAcc = accToSelect;
+                    const selectEl = document.getElementById('analyticsMeterSelect');
+                    if(selectEl) selectEl.value = accToSelect;
+                }
+                renderAnalyticsView();
+            }
+        }
+
+        // --- Init & Events ---
+        document.getElementById('viewTabs').addEventListener('click', (e) => {
+            const btn = e.target.closest('.tab-btn');
+            if(btn) switchTab(btn.dataset.view);
+        });
+
+        ['meterSearch', 'filterStatus'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener(id === 'meterSearch' ? 'input' : 'change', renderMeterDirectory);
+            }
+        });
+        
+        const analyticsSelect = document.getElementById('analyticsMeterSelect');
+        if(analyticsSelect) {
+            analyticsSelect.addEventListener('change', (e) => {
+                state.activeAnalyticsAcc = e.target.value;
+                renderAnalyticsView();
+            });
+        }
+
+        const refreshBtn = document.getElementById('refreshBtnGlobal');
+        if(refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                const icon = refreshBtn.querySelector('i');
+                if(icon) icon.classList.add('animate-spin');
+                
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                const skeleton = document.getElementById('loading-skeleton');
+                if(skeleton) skeleton.classList.remove('hidden');
+                const updateText = document.getElementById('lastUpdateText');
+                if(updateText) updateText.textContent = "Updating...";
+
+                initApp().finally(() => {
+                    if(icon) icon.classList.remove('animate-spin');
+                });
+            });
+        }
+
+        async function initApp() {
+            try {
+                const promises = ACCOUNTS.map(acc => fetchMeterData(acc));
+                const results = await Promise.all(promises);
+                
+                state.dataMap = {};
+                results.forEach(res => { if(res) state.dataMap[res.account] = res; });
+                
+                const skeleton = document.getElementById('loading-skeleton');
+                if(skeleton) skeleton.classList.add('hidden');
+                
+                renderSummaryDashboard();
+                renderAnalyticsDropdown();
+                switchTab(state.currentView, state.activeAnalyticsAcc);
+
+                const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                const updateText = document.getElementById('lastUpdateText');
+                if(updateText) updateText.innerHTML = `Live &nbsp;<span class="text-slate-400 font-normal">| ${timeStr}</span>`;
+            } catch (err) {
+                console.error("Initialization failed", err);
+                showToast("Failed to load data. Please check connection.");
+                const updateText = document.getElementById('lastUpdateText');
+                if(updateText) updateText.textContent = "Offline";
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+    </script>
+</body>
+</html>
