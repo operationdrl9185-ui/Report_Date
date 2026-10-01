@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DekkoReadywears Ltd - LOTO Register & Pictorial Evidence (RSC ID: 9185)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        hazard: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            900: '#713f12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(30, 41, 59, 0.7) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.8) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Industrial hazard stripe accent */
+        .hazard-stripe {
+            background: repeating-linear-gradient(
+                -45deg,
+                #facc15,
+                #facc15 14px,
+                #0f172a 14px,
+                #0f172a 28px
+            );
+        }
+
+        /* Pure White Input Styling & High Visibility Focus */
+        .pure-white-cell {
+            background-color: #ffffff !important;
+        }
+        
+        .form-input-styled {
+            background-color: #ffffff !important;
+            transition: all 0.15s ease-in-out;
+        }
+        .form-input-styled:focus {
+            background-color: #ffffff !important;
+            border-color: #ca8a04 !important;
+            box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2) !important;
+            outline: none;
+        }
+
+        /* Hide browser default dashes/placeholders for empty date and time inputs */
+        input.empty-datetime,
+        input.empty-datetime::-webkit-datetime-edit,
+        input.empty-datetime::-webkit-datetime-edit-fields-wrapper,
+        input.empty-datetime::-webkit-datetime-edit-text,
+        input.empty-datetime::-webkit-datetime-edit-month-field,
+        input.empty-datetime::-webkit-datetime-edit-day-field,
+        input.empty-datetime::-webkit-datetime-edit-year-field,
+        input.empty-datetime::-webkit-datetime-edit-hour-field,
+        input.empty-datetime::-webkit-datetime-edit-minute-field,
+        input.empty-datetime::-webkit-datetime-edit-ampm-field {
+            color: transparent !important;
+        }
+
+        /* Photo Upload Dropzone Hover */
+        .dropzone-hover:hover {
+            border-color: #ca8a04;
+            background-color: #fefce8 !important;
+        }
+
+        /* Glassmorphism control panel */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* EXACT A4 SINGLE PAGE CONTROL ENGINE */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 4mm 5mm 4mm 5mm;
+            }
+
+            .no-print { 
+                display: none !important; 
+            }
+
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .print-page-wrapper {
+                display: block !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            /* Prevent inactive tab views from printing */
+            .print-page-wrapper.hidden {
+                display: none !important;
+            }
+
+            .paper-sheet {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 285mm !important;
+                max-height: 285mm !important;
+                padding: 14px 18px !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border: 2px solid #000000 !important;
+                border-radius: 0 !important;
+                background: #ffffff !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important; /* CRITICAL: Prevents extra spilling onto page 3 */
+            }
+
+            input, textarea, select {
+                border: none !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+                font-weight: 700 !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                resize: none !important;
+            }
+
+            /* Hide all placeholder text during printing so empty cells remain pure white for pen writing */
+            input::placeholder,
+            textarea::placeholder {
+                color: transparent !important;
+                opacity: 0 !important;
+                -webkit-text-fill-color: transparent !important;
+            }
+
+            /* Ensure empty date and time inputs print as pure white blank boxes without dashes */
+            input[type="date"]:not([value]),
+            input[type="date"][value=""],
+            input[type="time"]:not([value]),
+            input[type="time"][value=""],
+            input.empty-datetime,
+            input.empty-datetime::-webkit-datetime-edit,
+            input.empty-datetime::-webkit-datetime-edit-fields-wrapper,
+            input.empty-datetime::-webkit-datetime-edit-text,
+            input.empty-datetime::-webkit-datetime-edit-month-field,
+            input.empty-datetime::-webkit-datetime-edit-day-field,
+            input.empty-datetime::-webkit-datetime-edit-year-field,
+            input.empty-datetime::-webkit-datetime-edit-hour-field,
+            input.empty-datetime::-webkit-datetime-edit-minute-field,
+            input.empty-datetime::-webkit-datetime-edit-ampm-field {
+                color: transparent !important;
+            }
+
+            /* Hide dropzone icons and upload prompt text in print view when empty */
+            [id^="dropzone_"] {
+                display: none !important;
+            }
+
+            .print-border-black {
+                border-color: #000000 !important;
+            }
+
+            .photo-slot-border {
+                border: 1.5px solid #000000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen py-4 px-2 md:px-6 text-slate-900 antialiased selection:bg-amber-300">
+
+    <!-- Top Fixed Action Control Bar (Hidden when printing) -->
+    <header class="max-w-[210mm] mx-auto mb-5 no-print">
+        <div class="glass-panel text-white p-3.5 rounded-2xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 border border-slate-700/60">
+            
+            <!-- Branding / Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20">
+                    <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="font-black text-base tracking-tight text-white uppercase">LOTO Register & Evidence</h1>
+                        <span class="px-2 py-0.5 rounded text-[11px] font-black bg-amber-400 text-slate-950 shadow-sm">
+                            RSC ID: 9185
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300 font-medium">DekkoReadywears Ltd • Operational Safety Register System</p>
+                </div>
+            </div>
+
+            <!-- Page Switcher Tabs -->
+            <div class="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-700/80 text-xs font-semibold">
+                <button type="button" id="tab1Btn" onclick="switchPage(1)" class="px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-amber-400 text-slate-950 font-black shadow-md">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> Page 1: Register Form
+                </button>
+                <button type="button" id="tab2Btn" onclick="switchPage(2)" class="px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-300 hover:text-white">
+                    <i data-lucide="camera" class="w-4 h-4"></i> Page 2: Pictorial Evidence
+                </button>
+                <button type="button" id="tabAllBtn" onclick="switchPage('all')" class="px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-400 hover:text-white hidden md:flex">
+                    <i data-lucide="layers" class="w-4 h-4"></i> Both Pages
+                </button>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="resetForm()" class="px-3 py-1.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition flex items-center gap-1.5 shadow">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear All
+                </button>
+                <button type="button" onclick="triggerPrint()" class="px-4 py-1.5 text-xs font-black bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 rounded-xl shadow-lg shadow-amber-500/25 transition flex items-center gap-2 uppercase tracking-wide">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Print A4 Document
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Form Container (A4 Printable Canvas) -->
+    <main class="max-w-[210mm] mx-auto space-y-8">
+        <form id="lotoMasterForm">
+
+            <!-- PAGE 1: LOTO INFORMATION REGISTER FORM -->
+            <div id="page1View" class="print-page-wrapper page-break-after">
+                <div class="paper-sheet bg-white p-6 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-2 border-slate-900 relative flex flex-col justify-between space-y-3 min-h-[285mm] max-h-[285mm]">
+                    
+                    <!-- Top Hazard Stripe Bar -->
+                    <div class="h-2.5 w-full hazard-stripe rounded-t-sm -mt-6 -mx-6 mb-1 print-border-black" style="width: calc(100% + 3rem);"></div>
+
+                    <!-- Header Block -->
+                    <div>
+                        <div class="border-b-2 border-slate-950 pb-2 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-13 h-13 bg-slate-950 text-white font-black rounded-xl flex flex-col items-center justify-center border-2 border-slate-900 shadow-sm p-1.5">
+                                    <span class="text-xl leading-none tracking-tighter">DRL</span>
+                                    <span class="text-[7px] text-amber-400 font-bold tracking-widest mt-0.5">SAFETY</span>
+                                </div>
+                                <div>
+                                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-slate-950 leading-none">DEKKO READYWEARS LTD</h1>
+                                    <p class="text-[10px] font-semibold text-slate-700 tracking-wide mt-1">Plot # M/1, Section # 07, Road # 07, Mirpur-1216, Dhaka, Bangladesh</p>
+                                </div>
+                            </div>
+                            <div class="text-right flex flex-col items-end justify-center">
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-400 text-slate-950 font-black text-[11px] uppercase rounded border border-amber-500 shadow-sm">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                    <span>RSC ID: 9185</span>
+                                </div>
+                                <span class="text-[9px] font-black text-slate-900 mt-1 font-mono tracking-wider">FORM NO: DRL-LOTO-REG-01</span>
+                                
+                                <!-- LOTO Register Number Input (YYMMDDHHMM Format) -->
+                                <div class="mt-1 flex items-center gap-1 text-[10px] font-black text-slate-950">
+                                    <span class="text-slate-700 font-extrabold uppercase text-[9px] tracking-tight">REG NO:</span>
+                                    <input type="text" id="lotoRegisterNo" placeholder="YYMMDDHHMM" class="form-input-styled font-mono font-black text-amber-950 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-400 w-28 text-center text-[11px] uppercase outline-none shadow-inner" title="LOTO Register Number (Format: YYMMDDHHMM)">
+                                    <button type="button" onclick="generateLotoRegNo(true)" class="no-print bg-slate-900 hover:bg-slate-800 text-amber-400 p-1 rounded border border-slate-700 transition" title="Auto-Generate YYMMDDHHMM">
+                                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Title Banner -->
+                        <div class="mt-2 text-center py-1.5 bg-white border-2 border-slate-950 rounded-lg print-border-black flex items-center justify-between px-3">
+                            <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">OPERATION SAFETY</span>
+                            <h2 class="text-xs md:text-sm font-black uppercase tracking-widest text-slate-950">
+                                LOCK OUT TAG OUT REGISTER FORM
+                            </h2>
+                            <span class="text-[9px] font-black tracking-widest text-amber-800 uppercase bg-amber-100 px-2 py-0.5 rounded border border-amber-300">PAGE 01 OF 02</span>
+                        </div>
+                    </div>
+
+                    <!-- Section 1: Equipment & Schedule -->
+                    <div class="border-2 border-slate-950 rounded-xl p-2.5 bg-white print-border-black space-y-2 shadow-sm">
+                        <div class="flex items-center justify-between border-b-2 border-slate-900 pb-1">
+                            <h3 class="text-xs font-black uppercase tracking-wider text-slate-950 flex items-center gap-1.5">
+                                <i data-lucide="cpu" class="w-4 h-4 text-amber-600 no-print"></i> 1. Equipment Identification & Lockout Schedule
+                            </h3>
+                            <span class="text-[9px] font-black text-slate-700 uppercase bg-slate-100 px-2 py-0.5 rounded border border-slate-300">Safety Protocol</span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div class="pure-white-cell p-1.5 rounded-lg border-2 border-slate-800 print-border-black min-h-[52px]">
+                                <label class="block text-[9px] font-black uppercase text-slate-700">Lockout Applied Date</label>
+                                <input type="date" id="appliedDate" class="form-input-styled empty-datetime w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                            </div>
+                            <div class="pure-white-cell p-1.5 rounded-lg border-2 border-slate-800 print-border-black min-h-[52px]">
+                                <label class="block text-[9px] font-black uppercase text-slate-700">Activities Start Time</label>
+                                <input type="time" id="startTime" class="form-input-styled empty-datetime w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                            </div>
+                            <div class="pure-white-cell p-1.5 rounded-lg border-2 border-slate-800 print-border-black min-h-[52px]">
+                                <label class="block text-[9px] font-black uppercase text-slate-700">Activities End Time</label>
+                                <input type="time" id="endTime" class="form-input-styled empty-datetime w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                            </div>
+
+                            <div class="col-span-2 pure-white-cell p-1.5 rounded-lg border-2 border-slate-800 print-border-black min-h-[52px]">
+                                <label class="block text-[9px] font-black uppercase text-slate-700">Equipment Identification</label>
+                                <input type="text" id="equipmentId" placeholder="" class="form-input-styled w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                            </div>
+                            <div class="col-span-1 pure-white-cell p-1.5 rounded-lg border-2 border-slate-800 print-border-black min-h-[52px]">
+                                <label class="block text-[9px] font-black uppercase text-slate-700">Location / Floor</label>
+                                <input type="text" id="location" placeholder="" class="form-input-styled w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                            </div>
+
+                            <div class="col-span-2 pure-white-cell p-1.5 rounded-lg border-2 border-slate-800 print-border-black min-h-[52px]">
+                                <label class="block text-[9px] font-black uppercase text-slate-700">Reason For Lockout</label>
+                                <input type="text" id="reason" placeholder="" class="form-input-styled w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                            </div>
+                            <div class="col-span-1 pure-white-cell p-1.5 rounded-lg border-2 border-amber-500 bg-white print-border-black min-h-[52px]">
+                                <label class="block text-[9px] font-black uppercase text-amber-900">Lock # / Tag Tagging ID</label>
+                                <input type="text" id="lockNo" placeholder="" class="form-input-styled w-full bg-white font-black text-xs text-amber-950 outline-none mt-0.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Applied By & Authorized By Dual Cards -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        
+                        <!-- Applied By Card -->
+                        <div class="border-2 border-slate-950 rounded-xl p-2.5 bg-white print-border-black space-y-1.5 shadow-sm">
+                            <div class="border-b-2 border-slate-900 pb-1 flex items-center justify-between">
+                                <h3 class="text-[11px] font-black uppercase text-slate-950 flex items-center gap-1">
+                                    <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-600 no-print"></i> 2A. Lockout Applied By
+                                </h3>
+                                <span class="text-[8px] font-black text-blue-900 bg-blue-100 px-1.5 py-0.5 rounded uppercase border border-blue-300">Technician</span>
+                            </div>
+                            
+                            <div class="space-y-1.5 text-xs">
+                                <div class="pure-white-cell p-1 rounded border-2 border-slate-800 print-border-black">
+                                    <label class="block text-[8px] font-black uppercase text-slate-700">Applied Name</label>
+                                    <input type="text" id="appliedName" placeholder="" class="form-input-styled w-full bg-white font-bold text-xs text-slate-950 outline-none">
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div class="pure-white-cell p-1 rounded border-2 border-slate-800 print-border-black">
+                                        <label class="block text-[8px] font-black uppercase text-slate-700">Designation</label>
+                                        <input type="text" id="appliedDesignation" placeholder="" class="form-input-styled w-full bg-white text-xs font-bold text-slate-950 outline-none">
+                                    </div>
+                                    <div class="pure-white-cell p-1 rounded border-2 border-slate-800 print-border-black">
+                                        <label class="block text-[8px] font-black uppercase text-slate-700">ID No</label>
+                                        <input type="text" id="appliedId" placeholder="" class="form-input-styled w-full bg-white text-xs font-bold text-slate-950 outline-none">
+                                    </div>
+                                </div>
+
+                                <!-- Pure White Manual Pen Signature Box -->
+                                <div>
+                                    <label class="block text-[8px] font-black uppercase text-slate-800 mb-0.5">Applied Signature</label>
+                                    <div class="h-14 border-2 border-dashed border-slate-800 rounded-lg bg-white flex flex-col justify-end p-1 text-center print-border-black relative">
+                                        <div class="border-b border-slate-800 mx-4 mb-0.5"></div>
+                                        <span class="text-[8px] text-slate-500 uppercase font-black tracking-wider">(Signature)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Authorized By Card -->
+                        <div class="border-2 border-slate-950 rounded-xl p-2.5 bg-white print-border-black space-y-1.5 shadow-sm">
+                            <div class="border-b-2 border-slate-900 pb-1 flex items-center justify-between">
+                                <h3 class="text-[11px] font-black uppercase text-slate-950 flex items-center gap-1">
+                                    <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-600 no-print"></i> 2B. Authorized By
+                                </h3>
+                                <span class="text-[8px] font-black text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded uppercase border border-amber-300">Supervisor</span>
+                            </div>
+
+                            <div class="space-y-1.5 text-xs">
+                                <div class="pure-white-cell p-1 rounded border-2 border-slate-800 print-border-black">
+                                    <label class="block text-[8px] font-black uppercase text-slate-700">Authorized Name</label>
+                                    <input type="text" id="authName" placeholder="" class="form-input-styled w-full bg-white font-bold text-xs text-slate-950 outline-none">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div class="pure-white-cell p-1 rounded border-2 border-slate-800 print-border-black">
+                                        <label class="block text-[8px] font-black uppercase text-slate-700">Designation</label>
+                                        <input type="text" id="authDesignation" placeholder="" class="form-input-styled w-full bg-white text-xs font-bold text-slate-950 outline-none">
+                                    </div>
+                                    <div class="pure-white-cell p-1 rounded border-2 border-slate-800 print-border-black">
+                                        <label class="block text-[8px] font-black uppercase text-slate-700">ID No</label>
+                                        <input type="text" id="authId" placeholder="" class="form-input-styled w-full bg-white text-xs font-bold text-slate-950 outline-none">
+                                    </div>
+                                </div>
+
+                                <!-- Pure White Manual Pen Signature Box -->
+                                <div>
+                                    <label class="block text-[8px] font-black uppercase text-slate-800 mb-0.5">Authorized Signature</label>
+                                    <div class="h-14 border-2 border-dashed border-slate-800 rounded-lg bg-white flex flex-col justify-end p-1 text-center print-border-black relative">
+                                        <div class="border-b border-slate-800 mx-4 mb-0.5"></div>
+                                        <span class="text-[8px] text-slate-500 uppercase font-black tracking-wider">(Signature)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Section 3: Lockout Removal Verification -->
+                    <div class="border-2 border-slate-950 rounded-xl p-2.5 bg-white print-border-black space-y-1.5 shadow-sm">
+                        <div class="flex items-center justify-between border-b-2 border-slate-900 pb-1">
+                            <h3 class="text-[11px] font-black uppercase tracking-wider text-slate-950 flex items-center gap-1.5">
+                                <i data-lucide="key-round" class="w-3.5 h-3.5 text-emerald-600 no-print"></i> 3. Lockout Removal & De-Isolation Verification
+                            </h3>
+                            <span class="text-[8px] font-black text-emerald-900 bg-emerald-100 px-1.5 py-0.5 rounded uppercase border border-emerald-300">Restoration Safety</span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2.5 text-xs">
+                            <div class="pure-white-cell p-1.5 rounded-lg border-2 border-slate-800 print-border-black min-h-[46px]">
+                                <label class="block text-[8px] font-black uppercase text-slate-700">Lockout Removed Date</label>
+                                <input type="date" id="removedDate" class="form-input-styled empty-datetime w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                            </div>
+                            <div class="pure-white-cell p-1.5 rounded-lg border-2 border-slate-800 print-border-black min-h-[46px]">
+                                <label class="block text-[8px] font-black uppercase text-slate-700">Removed Time</label>
+                                <input type="time" id="removedTime" class="form-input-styled empty-datetime w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                            </div>
+                            <div>
+                                <label class="block text-[8px] font-black uppercase text-slate-800 mb-0.5">Removal Signature</label>
+                                <div class="h-11 border-2 border-dashed border-slate-800 rounded-lg bg-white flex flex-col justify-end p-0.5 text-center print-border-black">
+                                    <div class="border-b border-slate-800 mx-3"></div>
+                                    <span class="text-[7px] text-slate-500 font-black uppercase">(Signature)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Executive Approvals & Management Signatures -->
+                    <div>
+                        <div class="text-center mb-1">
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-900">
+                                Management Approvals & Compliance Sign-Off
+                            </h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2.5 text-center">
+                            
+                            <!-- Check By -->
+                            <div class="border-2 border-slate-950 rounded-xl p-2 bg-white flex flex-col justify-between h-22 print-border-black shadow-sm">
+                                <div class="h-11 border-2 border-dashed border-slate-800 rounded-lg bg-white flex flex-col justify-end p-0.5">
+                                    <div class="border-b border-slate-800 mx-2"></div>
+                                    <span class="text-[7px] text-slate-500 font-bold mt-0.5">(Signature & Date)</span>
+                                </div>
+                                <div class="pt-1 border-t border-slate-300">
+                                    <p class="font-black text-[10px] text-slate-950 leading-none uppercase">CHECK BY</p>
+                                    <p class="text-[8px] text-slate-700 font-bold uppercase mt-0.5">INCHARGE / Sr. EXECUTIVE</p>
+                                </div>
+                            </div>
+
+                            <!-- Verified By -->
+                            <div class="border-2 border-slate-950 rounded-xl p-2 bg-white flex flex-col justify-between h-22 print-border-black shadow-sm">
+                                <div class="h-11 border-2 border-dashed border-slate-800 rounded-lg bg-white flex flex-col justify-end p-0.5">
+                                    <div class="border-b border-slate-800 mx-2"></div>
+                                    <span class="text-[7px] text-slate-500 font-bold mt-0.5">(Signature & Date)</span>
+                                </div>
+                                <div class="pt-1 border-t border-slate-300">
+                                    <p class="font-black text-[10px] text-slate-950 leading-none uppercase">VERIFIED BY</p>
+                                    <p class="text-[8px] text-slate-700 font-bold uppercase mt-0.5">Deputy Manager (E&S)</p>
+                                </div>
+                            </div>
+
+                            <!-- Authorized By AGM -->
+                            <div class="border-2 border-slate-950 rounded-xl p-2 bg-white flex flex-col justify-between h-22 print-border-black shadow-sm">
+                                <div class="h-11 border-2 border-dashed border-slate-800 rounded-lg bg-white flex flex-col justify-end p-0.5">
+                                    <div class="border-b border-slate-800 mx-2"></div>
+                                    <span class="text-[7px] text-slate-500 font-bold mt-0.5">(Signature & Date)</span>
+                                </div>
+                                <div class="pt-1 border-t border-slate-300">
+                                    <p class="font-black text-[10px] text-slate-950 leading-none uppercase">AUTHORIZED BY</p>
+                                    <p class="text-[8px] text-slate-700 font-bold uppercase mt-0.5">AGM (Maintenance)</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Page 1 Footer Note -->
+                    <div class="text-center pt-1.5 border-t-2 border-slate-950 flex items-center justify-between text-[8px] font-black text-slate-800 uppercase">
+                        <span>DekkoReadywears Ltd • LOTO Safety Register</span>
+                        <span class="text-amber-800 font-extrabold">RSC ID: 9185</span>
+                        <span>Form ID: DRL-LOTO-REG-01</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PAGE 2: PICTORIAL EVIDENCE REGISTER -->
+            <div id="page2View" class="print-page-wrapper">
+                <div class="paper-sheet bg-white p-6 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-2 border-slate-900 relative flex flex-col justify-between space-y-3 min-h-[285mm] max-h-[285mm]">
+                    
+                    <!-- Top Hazard Stripe Bar -->
+                    <div class="h-2.5 w-full hazard-stripe rounded-t-sm -mt-6 -mx-6 mb-1 print-border-black" style="width: calc(100% + 3rem);"></div>
+
+                    <!-- Header Block -->
+                    <div>
+                        <div class="border-b-2 border-slate-950 pb-2 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-13 h-13 bg-amber-400 text-slate-950 font-black rounded-xl flex items-center justify-center border-2 border-slate-900 shadow-sm p-1.5">
+                                    <i data-lucide="camera" class="w-7 h-7"></i>
+                                </div>
+                                <div>
+                                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight text-slate-950 leading-none">DEKKO READYWEARS LTD</h1>
+                                    <p class="text-[10px] font-semibold text-slate-700 tracking-wide mt-1">Safety Department • LOTO Pictorial Attachment Sheet</p>
+                                </div>
+                            </div>
+                            <div class="text-right flex flex-col items-end justify-center">
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-950 text-amber-400 font-black text-[11px] uppercase rounded shadow-sm">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                                    <span>RSC ID: 9185</span>
+                                </div>
+                                <span class="text-[9px] font-black text-slate-900 mt-1 font-mono tracking-wider">ATTACHMENT ID: DRL-LOTO-PIC-02</span>
+                            </div>
+                        </div>
+
+                        <!-- Title Banner -->
+                        <div class="mt-2 text-center py-1.5 bg-amber-50 border-2 border-amber-400 rounded-lg print-border-black flex items-center justify-between px-3">
+                            <span class="text-[9px] font-black tracking-widest text-amber-900 uppercase">SAFETY FIELD VERIFICATION</span>
+                            <h2 class="text-xs md:text-sm font-black uppercase tracking-widest text-slate-950">
+                                LOTO PICTORIAL EVIDENCE REGISTER
+                            </h2>
+                            <span class="text-[9px] font-black tracking-widest text-amber-900 uppercase bg-amber-200 px-2 py-0.5 rounded border border-amber-400">PAGE 02 OF 02</span>
+                        </div>
+                    </div>
+
+                    <!-- Auto-Linked Equipment Summary Banner -->
+                    <div class="bg-white border-2 border-slate-900 rounded-lg p-2 text-xs grid grid-cols-5 gap-2 print-border-black font-semibold shadow-sm">
+                        <div>
+                            <span class="block text-[8px] uppercase font-black text-slate-600">LOTO Reg No:</span>
+                            <span id="p2_reg" class="font-extrabold text-amber-950 font-mono text-[11px]"></span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] uppercase font-black text-slate-600">Equipment ID:</span>
+                            <span id="p2_equip" class="font-extrabold text-slate-950 text-[11px]"></span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] uppercase font-black text-slate-600">Location:</span>
+                            <span id="p2_loc" class="font-extrabold text-slate-950 text-[11px]"></span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] uppercase font-black text-slate-600">Lock / Tag #:</span>
+                            <span id="p2_lock" class="font-extrabold text-amber-950 text-[11px]"></span>
+                        </div>
+                        <div>
+                            <span class="block text-[8px] uppercase font-black text-slate-600">Applied Date:</span>
+                            <span id="p2_date" class="font-extrabold text-slate-950 text-[11px]"></span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Photo Container (Auto-Centers 1 photo, places 2 photos side-by-side) -->
+                    <div id="photoGridContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-grow my-1">
+                        
+                        <!-- Photo Slot 1: Lockout & Danger Tag Applied -->
+                        <div id="photoCard1" class="photo-slot-border border-2 border-slate-900 rounded-xl p-2.5 bg-white flex flex-col justify-between relative space-y-1.5 shadow-sm min-h-0 h-full max-h-[125mm] print:max-h-[115mm]">
+                            <div class="flex items-center justify-between border-b-2 border-slate-900 pb-1">
+                                <span class="text-xs font-black uppercase text-slate-950 flex items-center gap-1.5">
+                                    <i data-lucide="lock" class="w-4 h-4 text-amber-600 no-print"></i> 1. Lockout & Danger Tag Applied
+                                </span>
+                                <span class="text-[8px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded uppercase border border-amber-300">Photo #1</span>
+                            </div>
+                            
+                            <!-- Image Box with Height Constraint -->
+                            <div class="flex-grow h-44 md:h-52 print:h-[105mm] bg-white border-2 border-dashed border-slate-300 rounded-lg overflow-hidden flex flex-col items-center justify-center relative dropzone-hover transition p-1">
+                                <img id="img_preview_1" class="hidden max-w-full max-h-full object-contain rounded-lg" alt="Lockout & Danger Tag Applied 1">
+                                
+                                <!-- Clear Photo Button -->
+                                <button type="button" id="remove_btn_1" onclick="removeImage(1)" class="hidden absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition no-print z-10" title="Remove Photo">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+
+                                <div id="dropzone_1" class="text-center p-3">
+                                    <i data-lucide="image-plus" class="w-8 h-8 mx-auto text-amber-500 mb-1"></i>
+                                    <p class="text-xs font-black text-slate-800 uppercase">Upload Lockout Photo #1</p>
+                                    <p class="text-[10px] font-medium text-slate-500 mt-0.5">Click or drag image here</p>
+                                </div>
+                                <input type="file" id="file_input_1" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer no-print z-0" onchange="previewImage(this, 1)">
+                            </div>
+
+                            <div class="pure-white-cell p-1 border border-slate-300 rounded">
+                                <label class="block text-[8px] font-black uppercase text-slate-700">Photo Caption / Note</label>
+                                <input type="text" id="cap_1" placeholder="" class="form-input-styled w-full text-xs font-bold bg-white outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Photo Slot 2: Lockout & Danger Tag Applied -->
+                        <div id="photoCard2" class="photo-slot-border border-2 border-slate-900 rounded-xl p-2.5 bg-white flex flex-col justify-between relative space-y-1.5 shadow-sm min-h-0 h-full max-h-[125mm] print:max-h-[115mm]">
+                            <div class="flex items-center justify-between border-b-2 border-slate-900 pb-1">
+                                <span class="text-xs font-black uppercase text-slate-950 flex items-center gap-1.5">
+                                    <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600 no-print"></i> 2. Lockout & Danger Tag Applied
+                                </span>
+                                <span class="text-[8px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded uppercase border border-amber-300">Photo #2</span>
+                            </div>
+
+                            <!-- Image Box with Height Constraint -->
+                            <div class="flex-grow h-44 md:h-52 print:h-[105mm] bg-white border-2 border-dashed border-slate-300 rounded-lg overflow-hidden flex flex-col items-center justify-center relative dropzone-hover transition p-1">
+                                <img id="img_preview_2" class="hidden max-w-full max-h-full object-contain rounded-lg" alt="Lockout & Danger Tag Applied 2">
+                                
+                                <!-- Clear Photo Button -->
+                                <button type="button" id="remove_btn_2" onclick="removeImage(2)" class="hidden absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition no-print z-10" title="Remove Photo">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+
+                                <div id="dropzone_2" class="text-center p-3">
+                                    <i data-lucide="image-plus" class="w-8 h-8 mx-auto text-amber-500 mb-1"></i>
+                                    <p class="text-xs font-black text-slate-800 uppercase">Upload Lockout Photo #2</p>
+                                    <p class="text-[10px] font-medium text-slate-500 mt-0.5">Click or drag image here</p>
+                                </div>
+                                <input type="file" id="file_input_2" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer no-print z-0" onchange="previewImage(this, 2)">
+                            </div>
+
+                            <div class="pure-white-cell p-1 border border-slate-300 rounded">
+                                <label class="block text-[8px] font-black uppercase text-slate-700">Photo Caption / Note</label>
+                                <input type="text" id="cap_2" placeholder="" class="form-input-styled w-full text-xs font-bold bg-white outline-none">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Inspection Notes & Signoff -->
+                    <div class="border-2 border-slate-950 rounded-xl p-2 bg-white print-border-black space-y-1 shadow-sm">
+                        <label class="block text-[9px] font-black uppercase text-slate-950">Safety Officer Visual Inspection Remarks</label>
+                        <textarea rows="2" placeholder="" class="form-input-styled w-full bg-white border border-slate-300 rounded p-1.5 text-xs font-semibold outline-none"></textarea>
+                    </div>
+
+                    <!-- Inspector Signature Block -->
+                    <div class="grid grid-cols-2 gap-3 items-center">
+                        <div class="border-2 border-slate-950 rounded-lg p-1.5 bg-white">
+                            <span class="block text-[8px] font-black uppercase text-slate-700">Inspected & Uploaded By</span>
+                            <input type="text" placeholder="" class="form-input-styled w-full bg-white font-bold text-xs text-slate-950 outline-none mt-0.5">
+                        </div>
+                        <div class="h-11 border-2 border-dashed border-slate-800 rounded-lg bg-white flex flex-col justify-end p-0.5 text-center print-border-black">
+                            <div class="border-b border-slate-800 mx-4"></div>
+                            <span class="text-[7px] text-slate-500 uppercase font-black">(Inspector Signature)</span>
+                        </div>
+                    </div>
+
+                    <!-- Page 2 Footer -->
+                    <div class="text-center pt-1.5 border-t-2 border-slate-950 flex items-center justify-between text-[8px] font-black text-slate-800 uppercase">
+                        <span>DekkoReadywears Ltd • Safety Evidence Log</span>
+                        <span class="text-amber-800 font-extrabold">RSC ID: 9185 Attachment Sheet</span>
+                        <span>Form ID: DRL-LOTO-PIC-02</span>
+                    </div>
+
+                </div>
+            </div>
+
+        </form>
+    </main>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Active View State Variable
+        let currentView = 1;
+
+        // Switch between Page 1, Page 2, or Show Both
+        function switchPage(pageNumber) {
+            currentView = pageNumber;
+            const p1 = document.getElementById('page1View');
+            const p2 = document.getElementById('page2View');
+            const b1 = document.getElementById('tab1Btn');
+            const b2 = document.getElementById('tab2Btn');
+            const bAll = document.getElementById('tabAllBtn');
+
+            // Reset tab button styles
+            [b1, b2, bAll].forEach(b => {
+                if(b) {
+                    b.className = "px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 text-slate-300 hover:text-white";
+                }
+            });
+
+            if (pageNumber === 1) {
+                p1.classList.remove('hidden');
+                p2.classList.add('hidden');
+                b1.className = "px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-amber-400 text-slate-950 font-black shadow-md";
+            } else if (pageNumber === 2) {
+                p1.classList.add('hidden');
+                p2.classList.remove('hidden');
+                b2.className = "px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-amber-400 text-slate-950 font-black shadow-md";
+                syncPage2Summary();
+                updatePhotoLayout();
+            } else {
+                p1.classList.remove('hidden');
+                p2.classList.remove('hidden');
+                if(bAll) bAll.className = "px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 bg-amber-400 text-slate-950 font-black shadow-md";
+                updatePhotoLayout();
+            }
+        }
+
+        // Sync Equipment summary on Page 2 header
+        function syncPage2Summary() {
+            const regNoEl = document.getElementById('p2_reg');
+            if (regNoEl) regNoEl.innerText = document.getElementById('lotoRegisterNo').value || '';
+            document.getElementById('p2_equip').innerText = document.getElementById('equipmentId').value || '';
+            document.getElementById('p2_loc').innerText = document.getElementById('location').value || '';
+            document.getElementById('p2_lock').innerText = document.getElementById('lockNo').value || '';
+            document.getElementById('p2_date').innerText = document.getElementById('appliedDate').value || '';
+        }
+
+        // Auto-generate LOTO Register Number in YYMMDDHHMM format
+        function generateLotoRegNo(override = false) {
+            const regInput = document.getElementById('lotoRegisterNo');
+            if (!regInput) return;
+            
+            if (regInput.value && !override) {
+                syncPage2Summary();
+                return;
+            }
+
+            const appliedDate = document.getElementById('appliedDate').value;
+            const startTime = document.getElementById('startTime').value;
+            let dateObj = new Date();
+
+            if (appliedDate) {
+                const [yyyy, mm, dd] = appliedDate.split('-');
+                let hh = '00', min = '00';
+                if (startTime) {
+                    [hh, min] = startTime.split(':');
+                } else {
+                    hh = String(dateObj.getHours()).padStart(2, '0');
+                    min = String(dateObj.getMinutes()).padStart(2, '0');
+                }
+                const yy = yyyy.slice(-2);
+                regInput.value = `${yy}${mm}${dd}${hh}${min}`;
+            } else {
+                const yy = String(dateObj.getFullYear()).slice(-2);
+                const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const dd = String(dateObj.getDate()).padStart(2, '0');
+                const hh = String(dateObj.getHours()).padStart(2, '0');
+                const min = String(dateObj.getMinutes()).padStart(2, '0');
+                regInput.value = `${yy}${mm}${dd}${hh}${min}`;
+            }
+            syncPage2Summary();
+        }
+
+        // Preview uploaded image for pictorial evidence
+        function previewImage(input, index) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('img_preview_' + index);
+                    const dropzone = document.getElementById('dropzone_' + index);
+                    const removeBtn = document.getElementById('remove_btn_' + index);
+
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    dropzone.classList.add('hidden');
+                    if(removeBtn) removeBtn.classList.remove('hidden');
+
+                    updatePhotoLayout();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo from slot
+        function removeImage(index) {
+            const img = document.getElementById('img_preview_' + index);
+            const dropzone = document.getElementById('dropzone_' + index);
+            const removeBtn = document.getElementById('remove_btn_' + index);
+            const fileInput = document.getElementById('file_input_' + index);
+
+            img.src = '';
+            img.classList.add('hidden');
+            dropzone.classList.remove('hidden');
+            if(removeBtn) removeBtn.classList.add('hidden');
+            if(fileInput) fileInput.value = '';
+
+            updatePhotoLayout();
+        }
+
+        // Dynamic layout updater: Auto-centers 1 photo or places 2 photos side-by-side cleanly inside A4 bounds
+        function updatePhotoLayout() {
+            const img1HasFile = !document.getElementById('img_preview_1').classList.contains('hidden');
+            const img2HasFile = !document.getElementById('img_preview_2').classList.contains('hidden');
+            
+            const container = document.getElementById('photoGridContainer');
+            const card1 = document.getElementById('photoCard1');
+            const card2 = document.getElementById('photoCard2');
+
+            // ALWAYS keep both photo cards accessible on screen for upload
+            card1.classList.remove('hidden');
+            card2.classList.remove('hidden');
+
+            if (img1HasFile && !img2HasFile) {
+                // Photo 1 attached, Photo 2 empty -> Keep both visible on screen; center Photo 1 during print and restrict height
+                container.className = "grid grid-cols-1 md:grid-cols-2 gap-3 my-1 flex-grow";
+                card1.className = "photo-slot-border border-2 border-slate-900 rounded-xl p-2.5 bg-white flex flex-col justify-between relative space-y-1.5 shadow-sm min-h-0 h-full print:col-span-2 print:max-w-md print:mx-auto print:w-full print:max-h-[135mm]";
+                card2.className = "photo-slot-border border-2 border-slate-900 rounded-xl p-2.5 bg-white flex flex-col justify-between relative space-y-1.5 shadow-sm min-h-0 h-full print:hidden";
+            } else if (!img1HasFile && img2HasFile) {
+                // Photo 2 attached, Photo 1 empty -> Center Photo 2 during print
+                container.className = "grid grid-cols-1 md:grid-cols-2 gap-3 my-1 flex-grow";
+                card1.className = "photo-slot-border border-2 border-slate-900 rounded-xl p-2.5 bg-white flex flex-col justify-between relative space-y-1.5 shadow-sm min-h-0 h-full print:hidden";
+                card2.className = "photo-slot-border border-2 border-slate-900 rounded-xl p-2.5 bg-white flex flex-col justify-between relative space-y-1.5 shadow-sm min-h-0 h-full print:col-span-2 print:max-w-md print:mx-auto print:w-full print:max-h-[135mm]";
+            } else {
+                // 0 or 2 photos uploaded -> Display 2 columns side-by-side bounded in height
+                container.className = "grid grid-cols-1 md:grid-cols-2 gap-3 my-1 flex-grow";
+                card1.className = "photo-slot-border border-2 border-slate-900 rounded-xl p-2.5 bg-white flex flex-col justify-between relative space-y-1.5 shadow-sm min-h-0 h-full print:max-h-[115mm]";
+                card2.className = "photo-slot-border border-2 border-slate-900 rounded-xl p-2.5 bg-white flex flex-col justify-between relative space-y-1.5 shadow-sm min-h-0 h-full print:max-h-[115mm]";
+            }
+        }
+
+        // Handle date and time input state to hide empty dashes
+        function setupDateTimeInputListeners() {
+            const dtInputs = document.querySelectorAll('input[type="date"], input[type="time"]');
+            dtInputs.forEach(input => {
+                const updateState = () => {
+                    if (!input.value) {
+                        input.classList.add('empty-datetime');
+                    } else {
+                        input.classList.remove('empty-datetime');
+                    }
+                };
+
+                // Initial check
+                updateState();
+
+                // Listeners for user interaction
+                input.addEventListener('input', updateState);
+                input.addEventListener('change', updateState);
+                input.addEventListener('blur', updateState);
+            });
+        }
+
+        // Reset entire form
+        function resetForm() {
+            document.getElementById('lotoMasterForm').reset();
+            const regInput = document.getElementById('lotoRegisterNo');
+            if (regInput) delete regInput.dataset.userEdited;
+            generateLotoRegNo(true);
+            syncPage2Summary();
+            removeImage(1);
+            removeImage(2);
+            setupDateTimeInputListeners();
+        }
+
+        // Trigger Print cleanly based on selected view
+        function triggerPrint() {
+            if (!document.getElementById('lotoRegisterNo').value) {
+                generateLotoRegNo(true);
+            }
+            syncPage2Summary();
+
+            // If user selected "Both Pages", unhide both; otherwise print the currently active tab without extra pages
+            const activeTab = currentView;
+            if (activeTab === 'all') {
+                switchPage('all');
+            }
+
+            setTimeout(() => {
+                window.print();
+            }, 150);
+        }
+
+        // On document load setup
+        window.addEventListener('DOMContentLoaded', () => {
+            setupDateTimeInputListeners();
+            generateLotoRegNo();
+            
+            // Bind auto-sync listeners
+            ['lotoRegisterNo', 'equipmentId', 'location', 'lockNo', 'appliedDate'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', syncPage2Summary);
+            });
+
+            ['appliedDate', 'startTime'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', () => {
+                    const regInput = document.getElementById('lotoRegisterNo');
+                    if (regInput && !regInput.dataset.userEdited) {
+                        generateLotoRegNo(true);
+                    }
+                });
+            });
+
+            const regInput = document.getElementById('lotoRegisterNo');
+            if (regInput) {
+                regInput.addEventListener('keydown', () => {
+                    regInput.dataset.userEdited = 'true';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
