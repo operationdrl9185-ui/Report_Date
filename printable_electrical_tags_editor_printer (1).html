@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="bn" style="--grid-gap: 6px;"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Printable Electrical Tags</title>
+  <!-- Tailwind CSS for modern UI controls -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Hind Siliguri for clean Bengali & English rendering -->
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&amp;family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --tag-border-width: 3.5px;
+      --grid-gap: 6px;
+    }
+
+    body {
+      font-family: 'Inter', 'Hind Siliguri', Arial, sans-serif;
+      background-color: #e2e8f0;
+      color: #0f172a;
+      padding-bottom: 92px; /* Space for mobile bottom toolbar */
+      overflow-x: hidden;
+    }
+
+    /* Scaled Wrapper so A4 Landscape Page Fits Comfortably on Mobile & Desktop */
+    .a4-scale-outer {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+      margin-top: 14px;
+      position: relative;
+      overflow: visible;
+    }
+
+    /* A4 Landscape Sheet Simulation on Screen (297mm x 210mm) */
+    .a4-page-sheet {
+      width: 297mm;
+      height: 210mm;
+      background: #ffffff;
+      padding: 8mm;
+      box-shadow: 0 12px 30px -5px rgba(15, 23, 42, 0.18);
+      border-radius: 4px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transform-origin: top center;
+      flex-shrink: 0;
+    }
+
+    .page-badge {
+      position: absolute;
+      top: -24px;
+      left: 0;
+      background: #1e293b;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 3px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.4px;
+    }
+
+    /* 6 Columns x 3 Rows Grid per Landscape Page */
+    .tag-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+      gap: var(--grid-gap);
+      flex: 1;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Tag Wrapper & Merge Span */
+    .tag-wrapper {
+      position: relative;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .tag-wrapper.span-2 {
+      grid-column: span 2;
+    }
+
+    .tag {
+      width: 100%;
+      height: 100%;
+      border: var(--tag-border-width) solid #000000 !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6px;
+      background-color: #ffffff;
+      color: #000000 !important;
+      font-family: 'Calibri', 'Carlito', 'Segoe UI', Arial, sans-serif;
+      font-weight: 900 !important;
+      -webkit-text-stroke: 0.45px #000000;
+      font-size: 28px;
+      line-height: 1.15;
+      outline: none;
+      overflow: hidden;
+      transition: background-color 0.15s ease;
+    }
+
+    .tag div, .tag span {
+      font-family: 'Calibri', 'Carlito', 'Segoe UI', Arial, sans-serif;
+      font-weight: 900 !important;
+      color: #000000 !important;
+      display: inline-block;
+      max-width: none;
+      white-space: nowrap;
+    }
+
+    .tag:focus {
+      background-color: #fefce8;
+      box-shadow: inset 0 0 0 3px #eab308;
+    }
+
+    /* Sample Reference Card Styling (Landscape proportions) */
+    .sample-tag-box {
+      width: 135px;
+      height: 105px;
+      border: 3.5px solid #000000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 6px;
+      background: #ffffff;
+      color: #000000;
+      font-family: 'Calibri', 'Carlito', 'Segoe UI', Arial, sans-serif;
+      font-weight: 900;
+      -webkit-text-stroke: 0.3px #000000;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    /* Graphical Hover/Touch Action Toolbar per Cell */
+    .tag-actions {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      left: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .tag-wrapper:hover .tag-actions,
+    .tag-wrapper:focus-within .tag-actions {
+      opacity: 1;
+    }
+
+    /* Always show clear touch controls on mobile/touch screens */
+    @media (hover: none) and (pointer: coarse) {
+      .tag-actions {
+        opacity: 0.96;
+      }
+    }
+
+    .tag-actions button {
+      pointer-events: auto;
+    }
+
+    /* Responsive workspace container */
+    .workspace-scroll {
+      width: 100%;
+      padding: 16px 4px 24px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Print Settings - Exact A4 Landscape, 6 Cols x 3 Rows */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 8mm;
+      }
+      html, body {
+        width: 100% !important;
+        height: auto !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .workspace-scroll {
+        overflow: visible !important;
+        padding: 0 !important;
+        display: block !important;
+      }
+      .a4-scale-outer {
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        display: block !important;
+      }
+      .a4-page-sheet {
+        width: 100% !important;
+        height: 194mm !important; /* Exact printable height of A4 Landscape (210mm - 16mm margins) */
+        min-height: unset !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        transform: none !important;
+        page-break-after: always;
+        break-after: page;
+      }
+      .a4-page-sheet:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .tag-wrapper {
+        min-height: 0 !important;
+        height: 100% !important;
+      }
+      .tag {
+        border: 3.5px solid #000000 !important;
+        background-color: #ffffff !important;
+        box-shadow: none !important;
+        font-family: 'Calibri', 'Carlito', 'Segoe UI', Arial, sans-serif !important;
+        font-weight: 900 !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.inset-0{inset:0px}.bottom-0{bottom:0px}.bottom-16{bottom:4rem}.left-0{left:0px}.right-0{right:0px}.right-5{right:1.25rem}.z-40{z-index:40}.z-50{z-index:50}.mb-0\.5{margin-bottom:0.125rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mt-1{margin-top:0.25rem}.mt-3{margin-top:0.75rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-4{height:1rem}.h-5{height:1.25rem}.min-h-screen{min-height:100vh}.w-4{width:1rem}.w-5{width:1.25rem}.w-full{width:100%}.max-w-6xl{max-width:72rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.cursor-pointer{cursor:pointer}.select-all{-webkit-user-select:all;user-select:all}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-row{flex-direction:row}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.justify-around{justify-content:space-around}.gap-0\.5{gap:0.125rem}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-200\/80{border-color:rgb(253 230 138 / 0.8)}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254 / var(--tw-border-opacity, 1))}.border-rose-200{--tw-border-opacity:1;border-color:rgb(254 205 211 / var(--tw-border-opacity, 1))}.border-sky-200{--tw-border-opacity:1;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/70{border-color:rgb(226 232 240 / 0.7)}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-amber-200\/70{background-color:rgb(253 230 138 / 0.7)}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-50\/70{background-color:rgb(255 251 235 / 0.7)}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.bg-rose-600{--tw-bg-opacity:1;background-color:rgb(225 29 72 / var(--tw-bg-opacity, 1))}.bg-sky-50{--tw-bg-opacity:1;background-color:rgb(240 249 255 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-700{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/50{background-color:rgb(15 23 42 / 0.5)}.bg-violet-600{--tw-bg-opacity:1;background-color:rgb(124 58 237 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-sky-600{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.bg-slate-800\/85{background-color:rgb(30 41 59 / 0.85)}.p-1\.5{padding:0.375rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.pb-3{padding-bottom:0.75rem}.pt-3{padding-top:0.75rem}.text-center{text-align:center}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-none{line-height:1}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-wider{letter-spacing:0.05em}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-900\/80{color:rgb(120 53 15 / 0.8)}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163 / var(--tw-text-opacity, 1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}.text-sky-800{--tw-text-opacity:1;color:rgb(7 89 133 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.accent-blue-600{accent-color:#2563eb}.opacity-0{opacity:0}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:bg-amber-100:hover{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-50:hover{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-700:hover{--tw-bg-opacity:1;background-color:rgb(190 18 60 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-100:hover{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-violet-700:hover{--tw-bg-opacity:1;background-color:rgb(109 40 217 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-700:hover{--tw-bg-opacity:1;background-color:rgb(3 105 161 / var(--tw-bg-opacity, 1))}.hover\:bg-violet-600:hover{--tw-bg-opacity:1;background-color:rgb(124 58 237 / var(--tw-bg-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:border-blue-500:focus{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:bottom-5{bottom:1.25rem}.sm\:hidden{display:none}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:p-5{padding:1.25rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 1024px){.lg\:block{display:block}.lg\:hidden{display:none}.lg\:w-56{width:14rem}.lg\:w-full{width:100%}.lg\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.lg\:flex-row{flex-direction:row}.lg\:flex-col{flex-direction:column}.lg\:gap-5{gap:1.25rem}}</style><style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.inset-0{inset:0px}.bottom-0{bottom:0px}.bottom-16{bottom:4rem}.left-0{left:0px}.right-0{right:0px}.right-5{right:1.25rem}.z-40{z-index:40}.z-50{z-index:50}.mb-0\.5{margin-bottom:0.125rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mt-1{margin-top:0.25rem}.mt-3{margin-top:0.75rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-4{height:1rem}.h-5{height:1.25rem}.min-h-screen{min-height:100vh}.w-4{width:1rem}.w-5{width:1.25rem}.w-full{width:100%}.max-w-6xl{max-width:72rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.cursor-pointer{cursor:pointer}.select-all{-webkit-user-select:all;user-select:all}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-row{flex-direction:row}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.justify-around{justify-content:space-around}.gap-0\.5{gap:0.125rem}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-200\/80{border-color:rgb(253 230 138 / 0.8)}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254 / var(--tw-border-opacity, 1))}.border-rose-200{--tw-border-opacity:1;border-color:rgb(254 205 211 / var(--tw-border-opacity, 1))}.border-sky-200{--tw-border-opacity:1;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/70{border-color:rgb(226 232 240 / 0.7)}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-amber-200\/70{background-color:rgb(253 230 138 / 0.7)}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-50\/70{background-color:rgb(255 251 235 / 0.7)}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.bg-rose-600{--tw-bg-opacity:1;background-color:rgb(225 29 72 / var(--tw-bg-opacity, 1))}.bg-sky-50{--tw-bg-opacity:1;background-color:rgb(240 249 255 / var(--tw-bg-opacity, 1))}.bg-sky-600{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-700{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.bg-slate-800\/85{background-color:rgb(30 41 59 / 0.85)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/50{background-color:rgb(15 23 42 / 0.5)}.bg-violet-600{--tw-bg-opacity:1;background-color:rgb(124 58 237 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.p-1\.5{padding:0.375rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.pb-3{padding-bottom:0.75rem}.pt-3{padding-top:0.75rem}.text-center{text-align:center}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-none{line-height:1}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-wider{letter-spacing:0.05em}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-900\/80{color:rgb(120 53 15 / 0.8)}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163 / var(--tw-text-opacity, 1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}.text-sky-800{--tw-text-opacity:1;color:rgb(7 89 133 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.accent-blue-600{accent-color:#2563eb}.opacity-0{opacity:0}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:bg-amber-100:hover{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-50:hover{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-700:hover{--tw-bg-opacity:1;background-color:rgb(190 18 60 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-100:hover{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-700:hover{--tw-bg-opacity:1;background-color:rgb(3 105 161 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-violet-600:hover{--tw-bg-opacity:1;background-color:rgb(124 58 237 / var(--tw-bg-opacity, 1))}.hover\:bg-violet-700:hover{--tw-bg-opacity:1;background-color:rgb(109 40 217 / var(--tw-bg-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:border-blue-500:focus{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:bottom-5{bottom:1.25rem}.sm\:hidden{display:none}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:p-5{padding:1.25rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 1024px){.lg\:block{display:block}.lg\:hidden{display:none}.lg\:w-56{width:14rem}.lg\:w-full{width:100%}.lg\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.lg\:flex-row{flex-direction:row}.lg\:flex-col{flex-direction:column}.lg\:gap-5{gap:1.25rem}}</style></head>
+<body class="min-h-screen flex flex-col items-center p-2.5 sm:p-5">
+
+  <!-- Control Panel & Sample Reference (Hidden during Print) -->
+  <header class="no-print w-full max-w-6xl bg-white rounded-2xl shadow-md border border-slate-200 p-3.5 sm:p-5 mb-5">
+    <div class="flex flex-col lg:flex-row gap-4 lg:gap-5 justify-between">
+      
+      <!-- Left & Center Controls -->
+      <div class="flex-1 flex flex-col justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-3">
+          <div>
+            <h1 class="text-base sm:text-xl font-bold text-slate-800 flex items-center gap-2">
+              <span class="bg-amber-100 text-amber-600 p-1.5 rounded-lg shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </span>
+              <span>ইলেকট্রিক্যাল ট্যাগ প্রিন্টার (A4 ল্যান্ডস্কেপ: ৬×৩)</span>
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">ফন্ট: <b>Calibri Bold (Auto-Fit)</b> — লেখা সেলের আকার অনুযায়ী স্বয়ংক্রিয়ভাবে সর্বোচ্চ বড় হয়ে ফিট হবে।</p>
+          </div>
+
+          <!-- Live Page & Cell Indicator Badges -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="bg-indigo-50 border border-indigo-200 text-indigo-800 px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-2xs">
+              <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <span id="pageCountIndicator" class="text-xs sm:text-sm font-bold">মোট পেজ: ১টি</span>
+            </div>
+            <div id="cellCountIndicator" class="bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold">সেল: ১টি (স্লট ১/১৮)</div>
+          </div>
+        </div>
+
+        <!-- Graphical Action Toolbar (Desktop & Tablet) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 items-center">
+          <!-- Add Single Cell -->
+          <button onclick="addTag(true, 1)" class="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold px-3 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-xs">
+            <span class="text-base leading-none">+</span> নতুন সেল (১ কলাম)
+          </button>
+
+          <!-- Add Merged 2-Column Cell -->
+          <button onclick="addTag(true, 2)" class="flex items-center justify-center gap-1.5 bg-violet-600 hover:bg-violet-700 active:scale-95 text-white font-semibold px-3 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-xs">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+            </svg>
+            + বড় সেল (২ কলাম)
+          </button>
+
+          <!-- Fill Remaining Page Slots -->
+          <button onclick="fillCurrentPage()" class="flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white font-semibold px-3 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-xs" title="বর্তমান পেজের বাকি খালি ঘরগুলো অটো নম্বরে পূর্ণ করুন">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+            </svg>
+            পেজ পূর্ণ করুন
+          </button>
+
+          <!-- Print Button -->
+          <button type="button" onclick="triggerPrint()" class="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold px-3 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-xs">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+            </svg>
+            প্রিন্ট / PDF সেভ
+          </button>
+        </div>
+
+        <!-- Smart Bulk Tools, Grid Gap & Reset Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mt-3 pt-3 border-t border-slate-100 items-center">
+          <!-- Bulk Batch Generator -->
+          <button onclick="openBatchModal()" class="flex items-center justify-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-semibold px-3 py-2 rounded-xl text-xs transition">
+            <span>⚡</span> একসাথে সিরিজ তৈরি
+          </button>
+
+          <!-- Sync Header (Line 1 & 2) Across All Cells -->
+          <button onclick="syncHeaderToAll()" class="flex items-center justify-center gap-1.5 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-semibold px-3 py-2 rounded-xl text-xs transition" title="প্রথম সেলের প্রথম ২ লাইন (Feed From ও DB নাম) বাকি সব সেলে বসান">
+            <span>🔄</span> DB নাম সব সেলে দিন
+          </button>
+
+          <!-- Grid Gap Control -->
+          <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/70">
+            <div class="flex justify-between text-[11px] font-semibold text-slate-600 mb-0.5">
+              <span>সেলের ফাঁকা (Gap)</span>
+              <span id="gapVal" class="text-blue-600">6px</span>
+            </div>
+            <input type="range" id="gapRange" min="0" max="16" value="6" class="w-full accent-blue-600 cursor-pointer" oninput="updateAppearance()">
+          </div>
+
+          <!-- Reset Action -->
+          <button onclick="openResetModal()" class="flex items-center justify-center gap-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-xl border border-rose-200 transition">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            সব রিসেট
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Side: Sample Reference Card -->
+      <div class="lg:w-56 bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3 flex flex-row lg:flex-col items-center justify-between gap-3 shrink-0">
+        <div class="flex flex-col lg:w-full">
+          <div class="flex items-center justify-between w-full gap-2 mb-1">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded-md">
+              স্যাম্পল সেল
+            </span>
+            <button onclick="copySampleToNew()" class="text-xs font-bold text-blue-700 hover:underline flex items-center gap-0.5" title="স্যাম্পল ফরম্যাট দিয়ে নতুন সেল যোগ করুন">
+              + কপি করুন
+            </button>
+          </div>
+          <p class="text-[11px] text-amber-900/80 leading-snug lg:hidden">
+            পাশের স্যাম্পল ফরম্যাট দেখে নিচের সেলগুলো এডিট করুন।
+          </p>
+        </div>
+
+        <!-- Visual Sample Preview -->
+        <div class="sample-tag-box shadow-2xs select-all shrink-0" title="এটি একটি রেফারেন্স স্যাম্পল">
+          <div>Feed From</div>
+          <div>DB-03/02</div>
+          <div>CKT-09</div>
+          <div>LED B-01</div>
+        </div>
+
+        <p class="hidden lg:block text-[10px] text-amber-900/80 text-center mt-1 leading-tight">
+          এই ফরম্যাট দেখে নিচের সেলে আপনার তথ্য সাজান
+        </p>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Helper Hint Banner -->
+  <div class="no-print sm:hidden w-full bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] px-3 py-2 rounded-xl mb-2 flex items-center justify-between">
+    <span>📱 নিচে পুরো A4 ল্যান্ডস্কেপ পেজের লাইভ প্রিভিউ ছোট আকারে দেখানো হচ্ছে</span>
+  </div>
+
+  <!-- Fixed Bottom Mobile Action Bar (Visible only on mobile/small screens) -->
+  <nav class="no-print sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-2 flex items-center justify-around gap-2 z-40 shadow-lg">
+    <button type="button" onclick="addTag(true, 1)" class="flex-1 bg-blue-600 active:scale-95 text-white font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1">
+      <span>+</span> ১ কলাম
+    </button>
+    <button type="button" onclick="addTag(true, 2)" class="flex-1 bg-violet-600 active:scale-95 text-white font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1">
+      <span>↔</span> ২ কলাম
+    </button>
+    <button type="button" onclick="triggerPrint()" class="flex-1 bg-emerald-600 active:scale-95 text-white font-bold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1">
+      <span>🖨️</span> প্রিন্ট / PDF
+    </button>
+  </nav>
+
+  <!-- Mobile Print Fallback Help Modal (If in-app browser blocks window.print) -->
+  <div id="printHelpModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl border border-slate-100">
+      <h3 class="text-base font-bold text-slate-800 mb-2">🖨️ মোবাইলে প্রিন্ট / PDF সেভ নির্দেশিকা</h3>
+      <p class="text-xs text-slate-600 leading-relaxed mb-3">
+        আপনার ফোনের বর্তমান অ্যাপ বা ইন-অ্যাপ ব্রাউজার থেকে সরাসরি প্রিন্ট মেনু ব্লক করা থাকলে নিচের ধাপটি অনুসরণ করুন:
+      </p>
+      <ol class="text-xs text-slate-700 space-y-1.5 list-decimal pl-4 mb-4 font-medium">
+        <li>উপরের/নিচের ব্রাউজার মেনু (<b>⋮</b> বা <b>Share</b>) থেকে <b>"Open in Chrome / Browser"</b> চাপুন।</li>
+        <li>অথবা ব্রাউজার মেনু থেকে <b>Share → Print</b> সিলেক্ট করে <b>Save as PDF (Landscape)</b> করুন।</li>
+      </ol>
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closePrintHelpModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-white">ঠিক আছে</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="no-print fixed bottom-16 sm:bottom-5 right-5 bg-slate-900 text-white text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-lg pointer-events-none transition-opacity duration-300 z-50 opacity-0">সেল মুছে ফেলা হয়েছে</div>
+
+  <!-- Batch Series Generator Modal -->
+  <div id="batchModal" class="no-print fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl border border-slate-100">
+      <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-1">⚡ একসাথে সিরিয়াল ট্যাগ তৈরি</h3>
+      <p class="text-xs text-slate-500 mb-4">সর্বশেষ সেলের ফরম্যাট অনুযায়ী কতটি ট্যাগ তৈরি করতে চান তা লিখুন।</p>
+      <div class="space-y-3 mb-5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">মোট কয়টি নতুন সেল যোগ হবে?</label>
+          <input type="number" id="batchCountInput" min="1" max="108" value="18" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="batchReplaceCheck" class="w-4 h-4 accent-blue-600 rounded">
+          <label for="batchReplaceCheck" class="text-xs text-slate-600">আগের সেলগুলো মুছে নতুন করে শুরু করুন</label>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeBatchModal()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">বাতিল</button>
+        <button onclick="generateBatchTags()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition">তৈরি করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Reset Confirmation Modal -->
+  <div id="resetModal" class="no-print fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100">
+      <h3 class="text-lg font-bold text-slate-800 mb-2">সব সেল রিসেট করবেন?</h3>
+      <p class="text-sm text-slate-600 mb-5">আপনার তৈরি করা বর্তমান সব পেজ ও সেল মুছে যাবে এবং প্রথম স্যাম্পল সেলটি ফিরে আসবে।</p>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeResetModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">বাতিল</button>
+        <button onclick="confirmReset()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white transition">হ্যাঁ, রিসেট করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Printable Pages Container -->
+  <div class="workspace-scroll">
+    <main id="pagesWrapper" class="flex flex-col items-center w-full"></main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'electrical_tags_landscape_v3';
+    const SETTINGS_KEY = 'electrical_tags_landscape_settings_v3';
+    const SLOTS_PER_PAGE = 18; // 6 columns x 3 rows
+
+    // State array of tag objects: { id: string, text: string, span: 1 | 2 }
+    let tagsState = [];
+
+    const defaultSampleText = "Feed From\nDB-03/02\nCKT-09\nLED B-01";
+
+    // Helper: Convert English digits to Bengali digits for UI badges
+    function toBengaliNumber(num) {
+      const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+      return String(num).replace(/\d/g, d => bnDigits[d]);
+    }
+
+    // Helper: Show subtle toast message
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    // Helper: Smart auto-increment for numbers inside the last tag (e.g., CKT-09 -> CKT-10, LED B-01 -> LED B-02)
+    function incrementTagText(text) {
+      const lines = text.split('\n');
+      return lines.map((line, index) => {
+        // Keep first 2 lines ("Feed From" & "DB-03/02") consistent
+        if (index < 2) return line;
+        return line.replace(/(\d+)(?!.*\d)/, (match) => {
+          const num = parseInt(match, 10) + 1;
+          return String(num).padStart(match.length, '0');
+        });
+      }).join('\n');
+    }
+
+    // Auto-Fit Font Engine: Maximizes Calibri Bold text size to fill each cell cleanly without overflow
+    function autoFitTag(tagEl) {
+      if (!tagEl) return;
+      // Use unscaled offsetWidth / offsetHeight so CSS transform scale on mobile does not shrink font calculation
+      const cellWidth = Math.floor(tagEl.offsetWidth - 16);
+      const cellHeight = Math.floor(tagEl.offsetHeight - 16);
+      if (cellWidth <= 0 || cellHeight <= 0) return;
+
+      // Temporarily allow content to expand beyond box to measure natural text dimensions accurately
+      tagEl.style.alignItems = 'flex-start';
+
+      let minSize = 10;
+      let maxSize = 120;
+      let bestSize = minSize;
+
+      // Binary search for the largest font size that fits both width and height
+      while (minSize <= maxSize) {
+        const mid = Math.floor((minSize + maxSize) / 2);
+        tagEl.style.fontSize = mid + 'px';
+
+        // Measure total height & max width using unscaled offsetWidth / offsetHeight
+        let totalHeight = 0;
+        let maxLineWidth = 0;
+        const lineDivs = tagEl.children;
+
+        if (lineDivs.length > 0) {
+          for (let i = 0; i < lineDivs.length; i++) {
+            const w = lineDivs[i].offsetWidth;
+            const h = lineDivs[i].offsetHeight;
+            totalHeight += h;
+            if (w > maxLineWidth) {
+              maxLineWidth = w;
+            }
+          }
+        } else {
+          totalHeight = tagEl.scrollHeight;
+          maxLineWidth = tagEl.scrollWidth;
+        }
+
+        if (totalHeight <= cellHeight && maxLineWidth <= cellWidth) {
+          bestSize = mid;
+          minSize = mid + 1;
+        } else {
+          maxSize = mid - 1;
+        }
+      }
+
+      tagEl.style.alignItems = 'center';
+      tagEl.style.fontSize = bestSize + 'px';
+    }
+
+    function autoFitAllTags() {
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.tag').forEach(autoFitTag);
+      });
+    }
+
+    // Scale A4 Landscape sheets proportionally to fit mobile & tablet screen widths nicely
+    function scalePagesToFitScreen() {
+      const outers = document.querySelectorAll('.a4-scale-outer');
+      const screenWidth = document.documentElement.clientWidth || window.innerWidth;
+      const availableWidth = Math.max(260, Math.min(screenWidth - 20, 1122)); // 297mm ~= 1122px at 96dpi
+
+      outers.forEach(outer => {
+        const sheet = outer.querySelector('.a4-page-sheet');
+        if (!sheet) return;
+
+        // Reset transform temporarily to measure true A4 px dimensions
+        sheet.style.transform = 'none';
+        const naturalWidth = sheet.offsetWidth || 1122;
+        const naturalHeight = sheet.offsetHeight || 794;
+
+        const scale = availableWidth < naturalWidth ? (availableWidth / naturalWidth) : 1;
+        sheet.style.transform = `scale(${scale})`;
+        sheet.style.transformOrigin = 'top center';
+
+        outer.style.width = '100%';
+        outer.style.height = `${Math.ceil(naturalHeight * scale)}px`;
+      });
+    }
+
+    // Reliable Print Trigger for Mobile & Desktop (with fallback if sandboxed/blocked)
+    function triggerPrint() {
+      // Reset CSS transform scale before printing so print layout is 100% full A4
+      document.querySelectorAll('.a4-page-sheet').forEach(sheet => {
+        sheet.style.transform = 'none';
+      });
+      document.querySelectorAll('.a4-scale-outer').forEach(outer => {
+        outer.style.width = '100%';
+        outer.style.height = 'auto';
+      });
+
+      autoFitAllTags();
+
+      // Check if running inside a restricted iframe/webview that blocks printing
+      let printDialogOpened = false;
+      const onBeforePrint = () => { printDialogOpened = true; };
+      window.addEventListener('beforeprint', onBeforePrint, { once: true });
+
+      setTimeout(() => {
+        try {
+          window.focus();
+          const execResult = document.execCommand ? document.execCommand('print', false, null) : false;
+          if (!execResult) {
+            window.print();
+          }
+        } catch (e) {
+          openPrintHelpModal();
+        }
+
+        // Restore mobile preview scale & show helpful guide if mobile in-app browser blocked print
+        setTimeout(() => {
+          scalePagesToFitScreen();
+          autoFitAllTags();
+          if (!printDialogOpened && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            openPrintHelpModal();
+          }
+        }, 800);
+      }, 150);
+    }
+
+    function openPrintHelpModal() {
+      const modal = document.getElementById('printHelpModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closePrintHelpModal() {
+      const modal = document.getElementById('printHelpModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Group tags into pages based on 6 columns x 3 rows (18 slots)
+    function paginateTags(items) {
+      if (!items || items.length === 0) {
+        return { pages: [[]] };
+      }
+
+      const pages = [];
+      let currentPage = [];
+      let currentRowCol = 0; // 0..5 across 6 columns
+      let currentRow = 0;    // 0..2 across 3 rows
+
+      items.forEach(item => {
+        const span = item.span === 2 ? 2 : 1;
+
+        // If 2-column cell doesn't fit at the end of current row (col 5), wrap to next row
+        if (span === 2 && currentRowCol === 5) {
+          currentRow++;
+          currentRowCol = 0;
+        }
+
+        // If current page's 3 rows are full, start a new page
+        if (currentRow >= 3) {
+          pages.push(currentPage);
+          currentPage = [];
+          currentRow = 0;
+          currentRowCol = 0;
+        }
+
+        currentPage.push(item);
+        currentRowCol += span;
+        if (currentRowCol >= 6) {
+          currentRow++;
+          currentRowCol = 0;
+        }
+      });
+
+      if (currentPage.length > 0 || pages.length === 0) {
+        pages.push(currentPage);
+      }
+
+      return { pages };
+    }
+
+    // Create DOM element for each individual tag cell
+    function createTagCellElement(item) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `tag-wrapper ${item.span === 2 ? 'span-2' : ''}`;
+
+      // Action bar (Merge toggle, Duplicate, Delete)
+      const actions = document.createElement('div');
+      actions.className = 'tag-actions no-print';
+
+      const mergeBtn = document.createElement('button');
+      mergeBtn.type = 'button';
+      mergeBtn.className = 'bg-slate-800/85 hover:bg-violet-600 text-white px-2 py-0.5 rounded-md text-[10px] font-bold shadow-sm transition flex items-center gap-1';
+      mergeBtn.title = item.span === 2 ? '১ কলামে ফিরিয়ে আনুন' : 'পাশের কলামের সাথে মার্জ করুন (২ কলাম)';
+      mergeBtn.textContent = item.span === 2 ? '⇄ ১ কলাম' : '↔ ২ কলাম';
+      mergeBtn.onclick = (e) => {
+        e.stopPropagation();
+        toggleSpan(item.id);
+      };
+
+      const rightBtns = document.createElement('div');
+      rightBtns.className = 'flex items-center gap-1';
+
+      const dupBtn = document.createElement('button');
+      dupBtn.type = 'button';
+      dupBtn.className = 'bg-sky-600 hover:bg-sky-700 text-white w-5 h-5 rounded-md text-[11px] font-bold flex items-center justify-center shadow-sm transition';
+      dupBtn.title = 'অটো নম্বরসহ ডুপ্লিকেট করুন';
+      dupBtn.textContent = '❐';
+      dupBtn.onclick = (e) => {
+        e.stopPropagation();
+        duplicateTag(item.id);
+      };
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'bg-rose-600 hover:bg-rose-700 text-white w-5 h-5 rounded-md text-[11px] font-bold flex items-center justify-center shadow-sm transition';
+      delBtn.title = 'সেল মুছে ফেলুন';
+      delBtn.textContent = '✕';
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        removeTag(item.id);
+      };
+
+      rightBtns.appendChild(dupBtn);
+      rightBtns.appendChild(delBtn);
+      actions.appendChild(mergeBtn);
+      actions.appendChild(rightBtns);
+      wrapper.appendChild(actions);
+
+      // Editable Tag Box
+      const tagDiv = document.createElement('div');
+      tagDiv.className = 'tag';
+      tagDiv.contentEditable = 'true';
+      tagDiv.spellcheck = false;
+
+      const lines = (item.text || '').split('\n');
+      lines.forEach(lineText => {
+        const lineEl = document.createElement('div');
+        lineEl.textContent = lineText || '\u00A0';
+        tagDiv.appendChild(lineEl);
+      });
+
+      tagDiv.addEventListener('input', () => {
+        item.text = tagDiv.innerText.replace(/\r/g, '');
+        saveState();
+        autoFitTag(tagDiv);
+      });
+
+      tagDiv.addEventListener('blur', () => {
+        // Normalize clean line structure on blur
+        const cleanLines = tagDiv.innerText.replace(/\r/g, '').split('\n');
+        item.text = cleanLines.join('\n');
+        tagDiv.innerHTML = '';
+        cleanLines.forEach(l => {
+          const d = document.createElement('div');
+          d.textContent = l || '\u00A0';
+          tagDiv.appendChild(d);
+        });
+        saveState();
+        autoFitTag(tagDiv);
+      });
+
+      wrapper.appendChild(tagDiv);
+      return wrapper;
+    }
+
+    // Render all A4 pages and cells
+    function renderPages() {
+      const wrapper = document.getElementById('pagesWrapper');
+      wrapper.innerHTML = '';
+
+      const { pages } = paginateTags(tagsState);
+      const totalPages = pages.length;
+
+      pages.forEach((pageTags, pageIndex) => {
+        const outer = document.createElement('div');
+        outer.className = 'a4-scale-outer';
+
+        const sheet = document.createElement('section');
+        sheet.className = 'a4-page-sheet';
+
+        // Page number badge (visible on screen, hidden on print)
+        const badge = document.createElement('div');
+        badge.className = 'page-badge no-print';
+        badge.textContent = `পেজ ${toBengaliNumber(pageIndex + 1)} / ${toBengaliNumber(totalPages)} (A4 ল্যান্ডস্কেপ)`;
+        sheet.appendChild(badge);
+
+        // 6x3 Grid container
+        const grid = document.createElement('div');
+        grid.className = 'tag-grid';
+
+        pageTags.forEach(item => {
+          const cellEl = createTagCellElement(item);
+          grid.appendChild(cellEl);
+        });
+
+        sheet.appendChild(grid);
+        outer.appendChild(sheet);
+        wrapper.appendChild(outer);
+      });
+
+      updateIndicators(totalPages);
+      scalePagesToFitScreen();
+      autoFitAllTags();
+    }
+
+    // Add a new tag cell (1-column or 2-column)
+    function addTag(autoIncrement = true, span = 1) {
+      const lastItem = tagsState[tagsState.length - 1];
+      const newText = (lastItem && autoIncrement)
+        ? incrementTagText(lastItem.text)
+        : defaultSampleText;
+
+      tagsState.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        text: newText,
+        span: span === 2 ? 2 : 1
+      });
+
+      saveState();
+      renderPages();
+      showToast(span === 2 ? 'নতুন ২-কলাম সেল যোগ হয়েছে' : 'নতুন সেল যোগ হয়েছে');
+    }
+
+    // Toggle 1-column vs 2-column merge on a cell
+    function toggleSpan(id) {
+      const target = tagsState.find(t => t.id === id);
+      if (!target) return;
+      target.span = target.span === 2 ? 1 : 2;
+      saveState();
+      renderPages();
+      showToast(target.span === 2 ? 'সেলটি ২ কলামে মার্জ করা হয়েছে' : 'সেলটি ১ কলামে আনা হয়েছে');
+    }
+
+    // Duplicate a specific cell right after it with auto-incremented number
+    function duplicateTag(id) {
+      const idx = tagsState.findIndex(t => t.id === id);
+      if (idx === -1) return;
+      const source = tagsState[idx];
+      const copyItem = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        text: incrementTagText(source.text),
+        span: source.span
+      };
+      tagsState.splice(idx + 1, 0, copyItem);
+      saveState();
+      renderPages();
+      showToast('সেল ডুপ্লিকেট করা হয়েছে');
+    }
+
+    // Remove a specific cell
+    function removeTag(id) {
+      tagsState = tagsState.filter(t => t.id !== id);
+      if (tagsState.length === 0) {
+        tagsState.push({
+          id: 'initial-1',
+          text: defaultSampleText,
+          span: 1
+        });
+      }
+      saveState();
+      renderPages();
+      showToast('সেল মুছে ফেলা হয়েছে');
+    }
+
+    // Copy sample format into a new cell
+    function copySampleToNew() {
+      tagsState.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        text: defaultSampleText,
+        span: 1
+      });
+      saveState();
+      renderPages();
+      showToast('স্যাম্পল ফরম্যাট কপি করা হয়েছে');
+    }
+
+    // Fill remaining empty slots on the current last page
+    function fillCurrentPage() {
+      const { pages } = paginateTags(tagsState);
+      const lastPage = pages[pages.length - 1] || [];
+      const usedSlots = lastPage.reduce((sum, t) => sum + (t.span === 2 ? 2 : 1), 0);
+      const remaining = SLOTS_PER_PAGE - usedSlots;
+
+      if (remaining <= 0) {
+        // Add a full new page of 18 cells if current page is already full
+        for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+          const prev = tagsState[tagsState.length - 1];
+          tagsState.push({
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+            text: prev ? incrementTagText(prev.text) : defaultSampleText,
+            span: 1
+          });
+        }
+        saveState();
+        renderPages();
+        showToast('নতুন পেজের ১৮টি সেল পূর্ণ করা হয়েছে');
+        return;
+      }
+
+      for (let i = 0; i < remaining; i++) {
+        const prev = tagsState[tagsState.length - 1];
+        tagsState.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+          text: prev ? incrementTagText(prev.text) : defaultSampleText,
+          span: 1
+        });
+      }
+
+      saveState();
+      renderPages();
+      showToast(`বাকি ${toBengaliNumber(remaining)}টি ঘর পূর্ণ করা হয়েছে`);
+    }
+
+    // Sync first 2 lines ("Feed From" & DB name) from the first cell to all other cells
+    function syncHeaderToAll() {
+      if (tagsState.length < 2) {
+        showToast('আপডেট করার মতো একাধিক সেল নেই');
+        return;
+      }
+      const firstLines = (tagsState[0].text || '').split('\n');
+      const headerLine1 = firstLines[0] || 'Feed From';
+      const headerLine2 = firstLines[1] || 'DB-03/02';
+
+      tagsState.forEach((item, index) => {
+        if (index === 0) return;
+        const lines = (item.text || '').split('\n');
+        lines[0] = headerLine1;
+        lines[1] = headerLine2;
+        item.text = lines.join('\n');
+      });
+
+      saveState();
+      renderPages();
+      showToast('সব সেলের DB ও হেডার আপডেট হয়েছে');
+    }
+
+    // Batch Series Generator Modal handlers
+    function openBatchModal() {
+      const modal = document.getElementById('batchModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeBatchModal() {
+      const modal = document.getElementById('batchModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function generateBatchTags() {
+      const count = Math.min(108, Math.max(1, parseInt(document.getElementById('batchCountInput').value, 10) || 18));
+      const replaceExisting = document.getElementById('batchReplaceCheck').checked;
+      const seedText = tagsState.length > 0 ? tagsState[tagsState.length - 1].text : defaultSampleText;
+
+      if (replaceExisting) {
+        tagsState = [];
+      }
+
+      for (let i = 0; i < count; i++) {
+        const textToUse = (i === 0 && replaceExisting)
+          ? seedText
+          : (tagsState.length > 0 ? incrementTagText(tagsState[tagsState.length - 1].text) : seedText);
+
+        tagsState.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+          text: textToUse,
+          span: 1
+        });
+      }
+
+      saveState();
+      renderPages();
+      closeBatchModal();
+      showToast(`${toBengaliNumber(count)}টি সিরিয়াল সেল তৈরি হয়েছে`);
+    }
+
+    // Update top header Page & Cell counters
+    function updateIndicators(totalPages) {
+      const totalSlotsUsed = tagsState.reduce((acc, item) => acc + (item.span === 2 ? 2 : 1), 0);
+      const totalCapacity = totalPages * SLOTS_PER_PAGE;
+
+      document.getElementById('pageCountIndicator').textContent = `মোট পেজ: ${toBengaliNumber(totalPages)}টি`;
+      document.getElementById('cellCountIndicator').textContent = `সেল: ${toBengaliNumber(tagsState.length)}টি (স্লট ${toBengaliNumber(totalSlotsUsed)}/${toBengaliNumber(totalCapacity)})`;
+    }
+
+    // Update Grid Gap slider & re-fit fonts
+    function updateAppearance() {
+      const g = document.getElementById('gapRange').value;
+      document.documentElement.style.setProperty('--grid-gap', g + 'px');
+      document.getElementById('gapVal').textContent = g + 'px';
+      autoFitAllTags();
+
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ g }));
+      } catch (e) {}
+    }
+
+    // Save state to browser storage
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tagsState));
+      } catch (e) {}
+    }
+
+    // Modal handlers
+    function openResetModal() {
+      const modal = document.getElementById('resetModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeResetModal() {
+      const modal = document.getElementById('resetModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmReset() {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(SETTINGS_KEY);
+      document.getElementById('gapRange').value = 6;
+      updateAppearance();
+
+      tagsState = [{
+        id: 'initial-1',
+        text: defaultSampleText,
+        span: 1
+      }];
+      saveState();
+      renderPages();
+      closeResetModal();
+      showToast('সব সেল রিসেট করা হয়েছে');
+    }
+
+    // Re-fit fonts before printing and on window resize
+    window.addEventListener('beforeprint', () => {
+      document.querySelectorAll('.a4-page-sheet').forEach(s => s.style.transform = 'none');
+      autoFitAllTags();
+    });
+    window.addEventListener('afterprint', () => {
+      scalePagesToFitScreen();
+      autoFitAllTags();
+    });
+    window.addEventListener('resize', () => {
+      scalePagesToFitScreen();
+      autoFitAllTags();
+    });
+
+    // Initialize application state on load
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+        if (savedSettings && savedSettings.g !== undefined) {
+          document.getElementById('gapRange').value = savedSettings.g;
+          document.documentElement.style.setProperty('--grid-gap', savedSettings.g + 'px');
+          document.getElementById('gapVal').textContent = savedSettings.g + 'px';
+        }
+
+        const savedTags = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (Array.isArray(savedTags) && savedTags.length > 0) {
+          tagsState = savedTags;
+        } else {
+          tagsState = [{
+            id: 'initial-1',
+            text: defaultSampleText,
+            span: 1
+          }];
+        }
+      } catch (e) {
+        tagsState = [{
+          id: 'initial-1',
+          text: defaultSampleText,
+          span: 1
+        }];
+      }
+
+      renderPages();
+    });
+  </script>
+
+</body></html>
